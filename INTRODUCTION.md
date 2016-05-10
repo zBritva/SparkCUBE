@@ -79,14 +79,14 @@ Evaluation with comparing mrcube implementation on pig latin1 is not possible, b
    - When will you write the text for which chapter of
      your thesis?
 
-	1.Learn Apache Spark/Scala
-	2.Simple implementaton of PipeSort
-	3.Overview of Spark optimization information on Spark
-	4.How can I user optimization information for my efficient implementation
-	5.Implementation of approach
-	6.Prepare large dataset for testing and comparing
-	7.Make meashures for comparing efficient of implementation
-	8.Write report.
+1. Learn Apache Spark/Scala
+2. Simple implementaton of PipeSort
+3. Overview of Spark optimization information on Spark
+4. How can I user optimization information for my efficient implementation
+5. Implementation of approach
+6. Prepare large dataset for testing and comparing
+7. Make meashures for comparing efficient of implementation
+8. Write report.
 
 # Refferences: 
 
