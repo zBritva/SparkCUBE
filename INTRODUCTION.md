@@ -21,8 +21,8 @@ Developing of Spork was initiated by Mayer Rustagi (Sigmoid Analytics). Spork pr
 by combine the power of and simplicity of Apache Pig on Apache Spark, increasing ETL process faster than before. For it DataDoctor operator toolkit is used. DataDoctor is a high-level operator on top of Spark - framework for joins, sorting, grouping, which hide a lot of complexity of data operators for simple implementing data operators in Pig and Apache Hive on Spark. [Spork]
 
 # 2. State of the art
-    - *What have others tried to solve the problem?*
-    - *Why are existing solutions not sufficient?*
+- *What have others tried to solve the problem?*
+- *Why are existing solutions not sufficient?*
 
 ## CUBE operator on Spark
 
@@ -38,8 +38,9 @@ The second issue is how to effectively distribute the computation such that we s
 According the task [Spark-2663] current implementation of  CUBE operator presents syntactic shugar over group by operation. In general, CUBE operator can be implemented by using different combination of attributes with UNION operaton.  Because group by's are executing separately from each other, it is easy, but not efficient way of implementation CUBE operator.   
 
 # 3. Your task in this thesis
-    - *What is your task in this thesis?*
-    - *In how far will this go beyond what has been done before and/or in how far will a different approach be taken than what has been tried before?*
+
+- *What is your task in this thesis?*
+- *In how far will this go beyond what has been done before and/or in how far will a different approach be taken than what has been tried before?*
 
 In this research I will be implementing efficient way of computing CUBE operation and evaluate effectiveness by  comparing performance current implementation CUBE operation over group by operation with new implementation.
 
@@ -48,12 +49,15 @@ In this research I will be implementing efficient way of computing CUBE operatio
 PipeSort Algorithm is improvement of GBLP algorithm [PipeSort]. PipeSort algorithm try to minimize the total computation cost of a data cube. PipeSort operate with two costs: the first is Sxy cost - it is cost of computing Nx node by using Ny if Nx already sorted and the second is Axy - it is computing cost of Ny node, if Nx is not sorted. PipeSort determine sorting order for each node in each level, starting from root of tree. If order of Ny is a prefix of parent node Nx then computation of Ny can be obtained without any extra sorting. And Nxy edge marks with Axy cost (Otherwise Nxy will be marked as Sxy). In general, always one of Edge can be marked as Axy. PipeSort uses a local optimization technique based on weighted bipartite matching (minimum weight matching problem) [Combinatory]. Then PipeSort adds a node that corresponds to the original fact table. Edge between original table and root marked as S edge. 
 
 # 4. Approach taken in this thesis
-    - *How do you plan to solve the problem in this thesis?*
-    - *If your approach is different than other existing approaches: why is there good reason to assume that your approach will lead to a better solution?*
+
+- *How do you plan to solve the problem in this thesis?*
+- *If your approach is different than other existing approaches: 
+  why is there good reason to assume that your approach will lead to a better solution?*
 
 In this paper will be considered implementation PipeSort algorithm on Apache Spark for efficient computation of CUBE operation.
 
 # 5 Evaluation
+
    - *How do you plan to evaluate your approach?*
    - *What are good criteria for assessing the quality of your approach?*
    - *What are suitable metrics to measure and quantify its performance characteristics?*
@@ -65,6 +69,7 @@ Evaluation is comparing my implementation with naive cubing (Groupping set).
 Evaluation with comparing mrcube implementation on pig latin1 is not possible, because mrcube realised for Hadoop.
 
 # 6 Work plan:
+
    - *Which work steps are necessary to work on your task?*
    - *When will the individual work steps be ready?*
    - *When will you write the text for which chapter of your thesis?*
