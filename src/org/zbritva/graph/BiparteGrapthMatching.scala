@@ -1,5 +1,7 @@
 package org.zbritva.graph
 
+
+//Class for convert CUBE tree to input format for simplex method
 class BiparteGrapthMatching {
   def solve(edges_cost: Array[Array[Int]]) {
     // expand souece matrix with fictive vertex's (start and finish vertexts)
@@ -9,7 +11,16 @@ class BiparteGrapthMatching {
     //			Array(Int.MaxValue, 1, 2),
     //			Array(1, Int.MaxValue, 2)
     //		)
+    val edges_cost_ext = extend_matrix(edges_cost)
 
+
+
+    val value = objective_function(edges_cost_ext)
+
+    print(value)
+  }
+
+  def extend_matrix(edges_cost: Array[Array[Int]]) : Array[Array[Int]] = {
     //create new array with length of row. It is a pseudo row
     val extension = new Array[Int](edges_cost(0).length)
 
@@ -29,9 +40,7 @@ class BiparteGrapthMatching {
       edges_cost_ext(index) = edges_cost_ext(index) :+ 1
     }
 
-    val value = objective_function(edges_cost_ext)
-
-    print(value)
+    edges_cost_ext
   }
 
   def objective_function(edges_cost: Array[Array[Int]]) : Int = {
