@@ -9,36 +9,37 @@ import scala.collection.immutable.List
 
 //Simple class for solving optimization problem task
 class Simplex(source: Array[Array[Int]]) {
-  var m: Int = source.length
-  var n: Int = source(0).length
+  var row_count: Int = source.length
+  var col_count: Int = source(0).length
+  var solution_length: Int = source(0).length - 1
 
-  var table: Array[Array[Int]] = Array.fill(m, n + m - 1) {
+  var simplex_table: Array[Array[Int]] = Array.fill(row_count, col_count + row_count - 1) {
     0
   }
 
   var basis: List[Int] = List[Int](0)
 
-  for (row <- table.indices) {
-    for (col <- table(row).indices) {
-      if (col < n)
-        table(row)(col) = source(row)(col)
+  for (row <- simplex_table.indices) {
+    for (col <- simplex_table(row).indices) {
+      if (col < col_count)
+        simplex_table(row)(col) = source(row)(col)
       else
-        table(row)(col) = 0
+        simplex_table(row)(col) = 0
 
-      if ((n + row) < table(0).length) {
-        table(row)(n + row) = 1
-        basis.::(n + row)
+      if ((col_count + row) < simplex_table(0).length) {
+        simplex_table(row)(col_count + row) = 1
+        basis.::(col_count + row)
       }
     }
   }
 
-  n = table(0).length
+  col_count = simplex_table(0).length
 
-  def Calculate(): Array[Array[Int]] = {
+  def Calculate(): Tuple2[Array[Array[Int]],Array[Int]]  = {
     var mainCol: Int = 0
     var mainRow: Int = 0
 
-    val result: Array[Int] = Array.fill(1) {
+    val result: Array[Int] = Array.fill(solution_length) {
       0
     }
 
@@ -48,40 +49,39 @@ class Simplex(source: Array[Array[Int]]) {
 
       basis = basis.updated(mainRow, mainCol)
 
-      val new_table: Array[Array[Int]] = Array.fill(m, n) {
+      val new_table: Array[Array[Int]] = Array.fill(row_count, col_count) {
         0
       }
 
-      for (j <- Range(0, n)) {
-        new_table(mainRow)(j) = table(mainRow)(j) / table(mainRow)(mainCol)
+      for (col <- Range(0, col_count)) {
+        new_table(mainRow)(col) = simplex_table(mainRow)(col) / simplex_table(mainRow)(mainCol)
       }
 
-      for (i <- Range(0, m)) {
-
-        for (j <- Range(0, n)) {
-          new_table(i)(j) = new_table(i)(j) - new_table(i)(mainCol) * new_table(mainRow)(j)
+      for (row <- Range(0, row_count)) {
+        for (col <- Range(0, col_count)) {
+          new_table(row)(col) = new_table(row)(col) - new_table(row)(mainCol) * new_table(mainRow)(col)
         }
       }
-      table = new_table
+      simplex_table = new_table
     }
 
-    for (i <- result.indices) {
-      val k = basis.apply(i + 1)
+    for (index <- result.indices) {
+      val k = basis.apply(index + 1)
       if (k != -1)
-        result(i) = table(k)(0)
+        result(index) = simplex_table(k)(0)
       else
-        result(i) = 0
+        result(index) = 0
     }
 
-    table
+    (simplex_table, result)
   }
 
   def isEnd(): Boolean = {
     var flag = true
 
     breakable {
-      for (j <- Range(1, n)) {
-        if (table(m - 1)(j) < 0) {
+      for (col <- Range(1, col_count)) {
+        if (simplex_table(row_count - 1)(col) < 0) {
           flag = false
           break
         }
@@ -93,9 +93,9 @@ class Simplex(source: Array[Array[Int]]) {
 
   def findMainCol(): Int = {
     var mainCol = 1
-    for (j <- Range(2, n)) {
-      if (table(m - 1)(j) < table(m - 1)(mainCol))
-        mainCol = j
+    for (col <- Range(2, col_count)) {
+      if (simplex_table(row_count - 1)(col) < simplex_table(row_count - 1)(mainCol))
+        mainCol = col
     }
 
     mainCol
@@ -105,18 +105,18 @@ class Simplex(source: Array[Array[Int]]) {
     var mainRow = 0
 
     breakable {
-      for (i <- Range(0, m - 1)) {
-        if (table(i)(mainCol) > 0) {
-          mainRow = i
+      for (row <- Range(0, row_count - 1)) {
+        if (simplex_table(row)(mainCol) > 0) {
+          mainRow = row
           break
         }
       }
     }
 
-    for (i <- Range(mainRow + 1, m - 1)) {
-      if ((table(i)(mainCol) > 0) &
-        (table(i)(0) / table(i)(mainCol)) < (table(mainRow)(0) / table(mainRow)(mainCol))) {
-        mainRow = i
+    for (row <- Range(mainRow + 1, row_count - 1)) {
+      if ((simplex_table(row)(mainCol) > 0) &
+        (simplex_table(row)(0) / simplex_table(row)(mainCol)) < (simplex_table(mainRow)(0) / simplex_table(mainRow)(mainCol))) {
+        mainRow = row
       }
     }
 
