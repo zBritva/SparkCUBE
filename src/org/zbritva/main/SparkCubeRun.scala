@@ -22,17 +22,17 @@ object SparkCubeRun extends App {
     val result = distData.count()
     print(result)
 
-    val graph_sover = new BiparteGrapthMatching()
-
-    Array(1.9, 2.9, 3.4, 3.5)
-
-    val test = Array(
-      Array(1, 2, Int.MaxValue),
-      Array(Int.MaxValue, 1, 2),
-      Array(1, Int.MaxValue, 2)
-    )
-
-    graph_sover.solve(test)
+//    val graph_sover = new BiparteGrapthMatching()
+//
+//    Array(1.9, 2.9, 3.4, 3.5)
+//
+//    val test = Array(
+//      Array(1, 2, Int.MaxValue),
+//      Array(Int.MaxValue, 1, 2),
+//      Array(1, Int.MaxValue, 2)
+//    )
+//
+//    graph_sover.solve(test)
 
   }
 }

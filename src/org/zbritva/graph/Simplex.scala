@@ -43,7 +43,7 @@ class Simplex(source: Array[Array[Int]]) {
       0
     }
 
-    while (isEnd()) {
+    while (!isEnd()) {
       mainCol = findMainCol()
       mainRow = findMainRow(mainCol)
 
@@ -74,6 +74,7 @@ class Simplex(source: Array[Array[Int]]) {
     }
 
     (simplex_table, result)
+
   }
 
   def isEnd(): Boolean = {
