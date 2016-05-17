@@ -14,7 +14,7 @@ class SimplexTest extends TestCase {
   var simplex: Simplex = _
 
   override def setUp: Unit = {
-    val table: Array[Array[Int]]
+    val table: Array[Array[Double]]
     = Array(
       Array(25, -3, 5),
       Array(30, -2, 5),
@@ -30,6 +30,8 @@ class SimplexTest extends TestCase {
     val simplex_table = result._1
     val values = result._2
 
-    val values_check = Array[Int](10, 10)
+    val values_check = Array[Double](10, 10)
+
+    assertArrayEquals("Check simplex method", values, values_check, 0.001)
   }
 }

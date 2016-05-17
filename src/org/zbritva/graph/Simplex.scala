@@ -8,16 +8,16 @@ import scala.util.control.Breaks._
 import scala.collection.immutable.List
 
 //Simple class for solving optimization problem task
-class Simplex(source: Array[Array[Int]]) {
+class Simplex(source: Array[Array[Double]]) {
   var row_count: Int = source.length
   var col_count: Int = source(0).length
   var solution_length: Int = source(0).length - 1
 
-  var simplex_table: Array[Array[Int]] = Array.fill(row_count, col_count + row_count - 1) {
+  var simplex_table: Array[Array[Double]] = Array.fill(row_count, col_count + row_count - 1) {
     0
   }
 
-  var basis: List[Int] = List[Int](0)
+  var basis: List[Int] = List[Int]()
 
   for (row <- simplex_table.indices) {
     for (col <- simplex_table(row).indices) {
@@ -25,21 +25,22 @@ class Simplex(source: Array[Array[Int]]) {
         simplex_table(row)(col) = source(row)(col)
       else
         simplex_table(row)(col) = 0
-
-      if ((col_count + row) < simplex_table(0).length) {
-        simplex_table(row)(col_count + row) = 1
-        basis.::(col_count + row)
-      }
+    }
+    if ((col_count + row) < simplex_table(0).length) {
+      simplex_table(row)(col_count + row) = 1
+      basis = basis.::(col_count + row)
     }
   }
 
+  basis = basis.reverse
+
   col_count = simplex_table(0).length
 
-  def Calculate(): Tuple2[Array[Array[Int]],Array[Int]]  = {
+  def Calculate(): Tuple2[Array[Array[Double]],Array[Double]]  = {
     var mainCol: Int = 0
     var mainRow: Int = 0
 
-    val result: Array[Int] = Array.fill(solution_length) {
+    val result: Array[Double] = Array.fill(solution_length) {
       0
     }
 
@@ -49,7 +50,7 @@ class Simplex(source: Array[Array[Int]]) {
 
       basis = basis.updated(mainRow, mainCol)
 
-      val new_table: Array[Array[Int]] = Array.fill(row_count, col_count) {
+      val new_table: Array[Array[Double]] = Array.fill(row_count, col_count) {
         0
       }
 
@@ -58,15 +59,17 @@ class Simplex(source: Array[Array[Int]]) {
       }
 
       for (row <- Range(0, row_count)) {
-        for (col <- Range(0, col_count)) {
-          new_table(row)(col) = new_table(row)(col) - new_table(row)(mainCol) * new_table(mainRow)(col)
+        if (row != mainRow) {
+          for (col <- Range(0, col_count)) {
+            new_table(row)(col) = simplex_table(row)(col) - simplex_table(row)(mainCol) * new_table(mainRow)(col)
+          }
         }
       }
       simplex_table = new_table
     }
 
     for (index <- result.indices) {
-      val k = basis.apply(index + 1)
+      val k = basis.indexOf(index + 1)
       if (k != -1)
         result(index) = simplex_table(k)(0)
       else
