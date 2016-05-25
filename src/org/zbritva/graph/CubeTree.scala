@@ -2,7 +2,10 @@ package org.zbritva.graph
 
 import scala.collection.immutable
 import scala.collection.mutable.ListBuffer
+import org.zbritva.graph.tree.TreeNode
 import org.zbritva
+
+import scala.util.control.Breaks._
 
 /**
   * Created by iigaliev on 20.05.2016.
@@ -11,8 +14,14 @@ import org.zbritva
 
 class CubeTree(columns: List[String]){
 
+  var root = new TreeNode()
+  root.setNodeColumns(columns)
+
   val level_count = columns.size + 1
   var level_list: Map[Int,immutable.Set[List[String]]] = Map[Int,immutable.Set[List[String]]]()
+
+  var all_nodes: List[TreeNode] = List[TreeNode]()
+  this.all_nodes = this.all_nodes.::(root)
 
   //firs level is list of columns
   level_list = level_list + (0 -> immutable.Set(columns))
@@ -23,12 +32,22 @@ class CubeTree(columns: List[String]){
   for(level <- Range(1,level_count)) {
     //we must generate child nodes for all nodes in current level
     //so, process all nodes in current level
-    val new_nodes = immutable.Set[List[String]]()
+    //val new_nodes = immutable.Set[List[String]]()
 
     var level_nodes = immutable.Set[List[String]]()
+    //TODO forach childs of parent element
     level_list(level-1).foreach((node) => {
       //generate childs for each node in current level
+      val parent = getParent(node)
       val new_nodes = getChildNodes(node)
+
+      //create node elements for childs
+      for(nd <- new_nodes){
+        val child = new TreeNode()
+        child.setNodeColumns(nd)
+        this.all_nodes = this.all_nodes.::(child)
+        parent.addChild(child)
+      }
       //add to set of exists nodes list
       level_nodes = level_nodes.++(new_nodes)
     })
@@ -36,6 +55,22 @@ class CubeTree(columns: List[String]){
     level_list = level_list + (level -> level_nodes)
   }
 
+  def getParent(columns: List[String]): TreeNode ={
+    var result: TreeNode = null
+    breakable {
+      for (node <- this.all_nodes) {
+        val parent_level_node_set = node.getNodeColumns().toSet
+        val current_node_set = columns.toSet
+        var intersection = parent_level_node_set.intersect(current_node_set)
+
+        if (intersection.size == columns.length && intersection.size == parent_level_node_set.size){
+          result = node
+          break()
+        }
+      }
+    }
+    result
+  }
 
   //This method redurning a set of child nodes for current node
   def getChildNodes(node: List[String]): immutable.Set[List[String]] = {

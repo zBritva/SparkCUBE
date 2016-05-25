@@ -5,11 +5,11 @@ package org.zbritva.graph.tree
   */
 class TreeNode() {
 
-  var node_columns: List[String] = _
+  var node_columns: List[String] = List[String]()
   //list to childs with cost of computing
   //first cost of computing is if current node is properly sorted
   //second cost of computing if current node is NOT! properly sorted
-  var node_childs: List[(Int, Int, TreeNode)] = _
+  var node_childs: List[(Int, Int, TreeNode)] = List[(Int, Int, TreeNode)]()
 
   def setNodeColumns(columns: List[String]): Unit ={
     node_columns = columns

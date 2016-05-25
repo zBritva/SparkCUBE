@@ -19,6 +19,7 @@ class CubeTreeTest extends TestCase {
       "A", "B", "C", "D"
     )
     tree = new CubeTree(lst)
+    println(tree)
   }
 
   def testCalculation: Unit = {
