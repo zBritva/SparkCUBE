@@ -1,10 +1,8 @@
 package org.zbritva.graph
 
-import scala.List
 import scala.collection.immutable
-import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.collection.mutable.Set
+import org.zbritva
 
 /**
   * Created by iigaliev on 20.05.2016.
@@ -67,4 +65,5 @@ class CubeTree(columns: List[String]){
   def getTree: Map[Int,scala.collection.immutable.Set[List[String]]] ={
     level_list
   }
+
 }
