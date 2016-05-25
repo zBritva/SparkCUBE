@@ -82,7 +82,7 @@ Evaluation with comparing mrcube implementation on pig latin1 is not possible, b
 |4| How can I user optimization information for my efficient implementation |  |
 |5| Implementation of approach | IN PROGRESS |
 |5.1| Implement Simplex method for solving optimization problem task | DONE |
-|5.2| Implement CUBE computation tree constructor |  |
+|5.2| Implement CUBE computation tree constructor | DONE |
 |5.3| Implement cost evaluation for sort cost |  |
 |5.4| Implement converter CUBE computation tree to series of optimization problem task |  |
 |5.5| Implement converter optimization problem task to Simplex method input format |  |
