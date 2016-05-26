@@ -19,14 +19,14 @@ class CubeTreeTest extends TestCase {
       "A", "B", "C", "D"
     )
     tree = new CubeTree(lst)
-    println(tree)
+    println(tree.getTree._level_list.toList.sortBy(_._1))
   }
 
   def testCalculation: Unit = {
 
-    val treestring = "Map(0 -> Set(List(A, B, C, D)), 1 -> Set(List(B, C, D), List(A, C, D), List(A, B, D), List(A, B, C)), 2 -> Set(List(A, C), List(B, C), List(B, D), List(C, D), List(A, B), List(A, D)), 3 -> Set(List(C), List(A), List(B), List(D)), 4 -> Set(List(*)))"
-    val result = tree.getTree.toString()
-
+    val treestring = "List((1,Set(List(*))), (2,Set(List(C), List(A), List(B), List(D))), (3,Set(List(A, C), List(B, C), List(B, D), List(C, D), List(A, B), List(A, D))), (4,Set(List(B, C, D), List(A, C, D), List(A, B, D), List(A, B, C))), (5,Set(List(A, B, C, D))))"
+    val result = tree.getTree.getLevels().toList.sortBy(_._1).toString()
+    println(result)
     assert(treestring == result)
   }
 }

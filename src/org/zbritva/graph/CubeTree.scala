@@ -4,6 +4,7 @@ import scala.collection.immutable
 import scala.collection.mutable.ListBuffer
 import org.zbritva.graph.tree.TreeNode
 import org.zbritva
+import org.zbritva.graph.tree.ExecutionTree
 
 import scala.util.control.Breaks._
 
@@ -23,20 +24,21 @@ class CubeTree(columns: List[String]){
   var all_nodes: List[TreeNode] = List[TreeNode]()
   this.all_nodes = this.all_nodes.::(root)
 
-  //firs level is list of columns
-  level_list = level_list + (0 -> immutable.Set(columns))
+  //last level is list of columns
+  level_list = level_list + (level_count -> immutable.Set(columns))
 
   //generate items for each level
   //we are skiping zero level, because 0 level contain only one node and it is source colums list
   //we also skip last level, because it is special case: *
-  for(level <- Range(1,level_count)) {
+  //TODO: needs reverse list, because in PipeSort
+  for(level <- Range(1,level_count).reverse) {
     //we must generate child nodes for all nodes in current level
     //so, process all nodes in current level
     //val new_nodes = immutable.Set[List[String]]()
 
     var level_nodes = immutable.Set[List[String]]()
     //TODO forach childs of parent element
-    level_list(level-1).foreach((node) => {
+    level_list(level+1).foreach((node) => {
       //generate childs for each node in current level
       val parent = getParent(node)
       val new_nodes = getChildNodes(node)
@@ -97,8 +99,8 @@ class CubeTree(columns: List[String]){
     new_nodes
   }
 
-  def getTree: Map[Int,scala.collection.immutable.Set[List[String]]] ={
-    level_list
+  def getTree: ExecutionTree ={
+    new ExecutionTree(root, level_list)
   }
 
 }
