@@ -14,6 +14,14 @@ class SimplexTest extends TestCase {
   var simplex: Simplex = _
 
   override def setUp: Unit = {
+
+//  -3x1 + 5x2 <= 25
+//  -2x1 + 5x2 <= 30
+//    x1 <= 10
+//   3x1 - 8x2 <= 6
+
+//  f(x1,x2) = 6x1 + 5x2 => max
+
     val table: Array[Array[Double]]
     = Array(
       Array(25, -3, 5),
