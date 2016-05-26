@@ -1,6 +1,6 @@
 package org.zbritva.graph
 
-import scala.collection.immutable
+import scala.collection.{immutable, mutable}
 import scala.collection.mutable.ListBuffer
 import org.zbritva.graph.tree.TreeNode
 import org.zbritva
@@ -21,22 +21,26 @@ class CubeTree(columns: List[String]) {
   val level_count = columns.size + 1
   var level_list: Map[Int, immutable.Set[List[String]]] = Map[Int, immutable.Set[List[String]]]()
 
+  //TODO construct tree with levels
+  var level_list_nodes: Map[Int, mutable.Set[TreeNode]] = Map[Int, mutable.Set[TreeNode]]()
+
   var all_nodes: List[TreeNode] = List[TreeNode]()
   this.all_nodes = this.all_nodes.::(root)
 
   //last level is list of columns
   level_list = level_list + (level_count - 1 -> immutable.Set(columns))
+  level_list_nodes = level_list_nodes.+(level_count -1 -> mutable.Set(root))
 
   //generate items for each level
   //we are skiping zero level, because 0 level contain only one node and it is source colums list
   //we also skip last level, because it is special case: *
-  //TODO: needs reverse list, because in PipeSort
   for (level <- Range(0, level_count - 1).reverse) {
     //we must generate child nodes for all nodes in current level
     //so, process all nodes in current level
     //val new_nodes = immutable.Set[List[String]]()
 
     var level_nodes = immutable.Set[List[String]]()
+    var level_nodes_node = mutable.Set[TreeNode]()
     //TODO forach childs of parent element
     level_list(level + 1).foreach((node) => {
       //generate childs for each node in current level
@@ -49,12 +53,14 @@ class CubeTree(columns: List[String]) {
         child.setNodeColumns(nd)
         this.all_nodes = this.all_nodes.::(child)
         parent.addChild(child)
+        level_nodes_node = level_nodes_node.+(child)
       }
       //add to set of exists nodes list
       level_nodes = level_nodes.++(new_nodes)
     })
 
     level_list = level_list + (level -> level_nodes)
+    level_list_nodes = level_list_nodes.+ (level -> level_nodes_node)
   }
 
   def getParent(columns: List[String]): TreeNode = {
@@ -100,7 +106,7 @@ class CubeTree(columns: List[String]) {
   }
 
   def getTree: ExecutionTree = {
-    new ExecutionTree(root, level_list)
+    new ExecutionTree(root, level_list, level_list_nodes)
   }
 
 }

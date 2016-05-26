@@ -32,4 +32,31 @@ class TreeNode() {
   def getChilds(): List[(Int, Int, TreeNode)] = {
     node_childs
   }
+
+//  override def equals(o: Any) = super.equals(o)
+//  override def hashCode = super.hashCode
+
+  override def hashCode: Int = {
+    var strHash: String = ""
+    for(columns <- node_columns.sorted(Ordering.String)){
+      strHash += columns
+    }
+
+    strHash.hashCode
+  }
+
+  override def equals(other: Any) = other match {
+    case that: TreeNode =>
+      var strHash: String = ""
+      for(columns <- that.node_columns.sorted(Ordering.String)){
+        strHash += columns
+      }
+      var strHashOther: String = ""
+      for(columns <- this.node_columns.sorted(Ordering.String)){
+        strHashOther += columns
+      }
+
+      strHash.equals(strHashOther)
+    case _ => false
+  }
 }
