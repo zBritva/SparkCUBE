@@ -24,7 +24,7 @@ class CubeTreeTest extends TestCase {
 
   def testCalculation: Unit = {
 
-    val treestring = "List((1,Set(List(*))), (2,Set(List(C), List(A), List(B), List(D))), (3,Set(List(A, C), List(B, C), List(B, D), List(C, D), List(A, B), List(A, D))), (4,Set(List(B, C, D), List(A, C, D), List(A, B, D), List(A, B, C))), (5,Set(List(A, B, C, D))))"
+    val treestring = "List((0,Set(List(*))), (1,Set(List(C), List(A), List(B), List(D))), (2,Set(List(A, C), List(B, C), List(B, D), List(C, D), List(A, B), List(A, D))), (3,Set(List(B, C, D), List(A, C, D), List(A, B, D), List(A, B, C))), (4,Set(List(A, B, C, D))))"
     val result = tree.getTree.getLevels().toList.sortBy(_._1).toString()
     println(result)
     assert(treestring == result)
