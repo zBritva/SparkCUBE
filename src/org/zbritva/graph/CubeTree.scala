@@ -51,20 +51,23 @@ class CubeTree(columns: List[String]) {
           child = new TreeNode()
           child.setNodeColumns(node_cols)
           this.all_nodes = this.all_nodes.::(child)
+          var zero_level_nodes = immutable.Set[List[String]]()
+          zero_level_nodes = zero_level_nodes.+(node_cols)
+          level_nodes = level_nodes.++(zero_level_nodes)
         }
         parent.addChild(child)
-        var zero_level_nodes = immutable.Set[List[String]]()
-        zero_level_nodes = zero_level_nodes.+(node_cols)
-        level_nodes = level_nodes.++(zero_level_nodes)
       }
       else {
         val new_nodes = getChildNodes(node)
 
         //create node elements for childs
         for (nd <- new_nodes) {
-          val child = new TreeNode()
-          child.setNodeColumns(nd)
-          this.all_nodes = this.all_nodes.::(child)
+          var child = getNode(nd)
+          if(child == null) {
+            child = new TreeNode()
+            child.setNodeColumns(nd)
+            this.all_nodes = this.all_nodes.::(child)
+          }
           parent.addChild(child)
         }
         //add to set of exists nodes list
