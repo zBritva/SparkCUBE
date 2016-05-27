@@ -40,18 +40,36 @@ class CubeTree(columns: List[String]) {
     //TODO forach childs of parent element
     level_list(level + 1).foreach((node) => {
       //generate childs for each node in current level
-      val parent = getParent(node)
-      val new_nodes = getChildNodes(node)
+      val parent = getNode(node)
 
-      //create node elements for childs
-      for (nd <- new_nodes) {
-        val child = new TreeNode()
-        child.setNodeColumns(nd)
-        this.all_nodes = this.all_nodes.::(child)
+      if (level == 0) {
+        val node_cols: List[String] = immutable.List[String] {
+          "*"
+        }
+        var child = getNode(node_cols)
+        if(child == null) {
+          child = new TreeNode()
+          child.setNodeColumns(node_cols)
+          this.all_nodes = this.all_nodes.::(child)
+        }
         parent.addChild(child)
+        var zero_level_nodes = immutable.Set[List[String]]()
+        zero_level_nodes = zero_level_nodes.+(node_cols)
+        level_nodes = level_nodes.++(zero_level_nodes)
       }
-      //add to set of exists nodes list
-      level_nodes = level_nodes.++(new_nodes)
+      else {
+        val new_nodes = getChildNodes(node)
+
+        //create node elements for childs
+        for (nd <- new_nodes) {
+          val child = new TreeNode()
+          child.setNodeColumns(nd)
+          this.all_nodes = this.all_nodes.::(child)
+          parent.addChild(child)
+        }
+        //add to set of exists nodes list
+        level_nodes = level_nodes.++(new_nodes)
+      }
     })
 
     level_list = level_list + (level -> level_nodes)
@@ -59,23 +77,23 @@ class CubeTree(columns: List[String]) {
 
   _recursiveWalkAcrossTree(root, level_count - 1)
 
-  def _recursiveWalkAcrossTree(node: TreeNode, currentLevel: Int): Unit ={
-//  Map[Int, mutable.Set[TreeNode]]
+  def _recursiveWalkAcrossTree(node: TreeNode, currentLevel: Int): Unit = {
+    //  Map[Int, mutable.Set[TreeNode]]
     var set: mutable.Set[TreeNode] = null
 
-    if (!(level_list_tree contains currentLevel)){
+    if (!(level_list_tree contains currentLevel)) {
       set = mutable.Set[TreeNode]()
-      level_list_tree = level_list_tree.+ (currentLevel -> set)
+      level_list_tree = level_list_tree.+(currentLevel -> set)
     }
     level_list_tree = level_list_tree.updated(currentLevel, level_list_tree(currentLevel) + node)
-    if(currentLevel == 0)
+    if (currentLevel == 0)
       return
-    for(child <- node.getChilds()){
+    for (child <- node.getChilds()) {
       _recursiveWalkAcrossTree(child._3, currentLevel - 1)
     }
   }
 
-  def getParent(columns: List[String]): TreeNode = {
+  def getNode(columns: List[String]): TreeNode = {
     var result: TreeNode = null
     breakable {
       for (node <- this.all_nodes) {
