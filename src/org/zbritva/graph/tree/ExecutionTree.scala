@@ -24,25 +24,29 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     this._level_list
   }
 
-  def _solveSimpexOptimizationTask(): Unit = {
-//    val levels = _level_list_tree.toList.sortBy(_._1)
-//    for (level <- levels) {
-//      if (level._1 == 0) {
-//        //skip zero level, because do nothing
-//
-//      } else {
-//        //other cases
-//        val additionalCopies = level._1 - 1
-//        val currentLevelNodesCount = level._2.size
-//        val objectiveFunctionSize: Int = currentLevelNodesCount + currentLevelNodesCount * additionalCopies
-//
-//        val objectiveFunction = Array[Double](objectiveFunctionSize)
-//        //fill objective function coefficients
-//        for(functionValue <- level._2){
-//
-//        }
-//
-//      }
-//    }
+  def _constructSimpexOptimizationTask(): Unit = {
+    val levels = _level_list_tree.toList.sortBy(_._1)
+    for (level <- levels) {
+      if (level._1 == 0) {
+        //skip zero level, because do nothing
+
+      } else {
+        //other cases
+        val additionalCopies = level._1 - 1
+        val currentLevelNodesCount = level._2.size
+        val objectiveFunctionSize: Int = currentLevelNodesCount + currentLevelNodesCount * additionalCopies
+
+        val objectiveFunction: Array[Double] = Array.fill(objectiveFunctionSize) {
+          0
+        }
+        var index: Int = 0
+        for (functionValue <- level._2)
+          for (child <- functionValue.getChilds()) {
+            objectiveFunction(index) = child._1
+            index += 1
+          }
+        println(objectiveFunction)
+      }
+    }
   }
 }

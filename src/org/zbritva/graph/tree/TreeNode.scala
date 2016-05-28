@@ -12,7 +12,7 @@ class TreeNode() {
   var node_childs: List[(Int, Int, TreeNode)] = List[(Int, Int, TreeNode)]()
 
   def setNodeColumns(columns: List[String]): Unit ={
-    node_columns = columns
+    node_columns = columns.sorted(Ordering.String)
   }
 
   def getNodeColumns(): List[String] ={
