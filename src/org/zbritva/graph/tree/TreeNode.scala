@@ -7,8 +7,11 @@ class TreeNode() {
 
   var node_columns: List[String] = List[String]()
   //list to childs with cost of computing
-  //first cost of computing is if current node is properly sorted
-  //second cost of computing if current node is NOT! properly sorted
+  //first cost of computing is if current node is properly sorted (wrong)
+  //second cost of computing if current node is NOT! properly sorted (wrong)
+  //TODO change two costes count according child of node,
+  // for each child must be defined two costes one for if parent properly sorted for this child,
+  // other if parent not properly sotded
   var node_childs: List[(Int, Int, TreeNode)] = List[(Int, Int, TreeNode)]()
 
   def setNodeColumns(columns: List[String]): Unit ={

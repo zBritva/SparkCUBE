@@ -1,5 +1,7 @@
 package org.zbritva.graph.tree
 
+import org.zbritva.graph.Simplex
+
 import scala.collection.mutable
 import scala.collection.immutable
 
@@ -15,6 +17,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
   var _root: TreeNode = root
   var _level_list: Map[Int, immutable.Set[List[String]]] = level_list
   var _level_list_tree: Map[Int, mutable.Set[TreeNode]] = level_list_tree
+  var _task: Map[Int, Array[Array[Double]]] = null
 
   def getRoot(): TreeNode = {
     this._root
@@ -71,6 +74,16 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
       }
     }
 
+    this._task = task
     task
+  }
+
+  def solve(): Unit ={
+    for(t <- this._task){
+      val simplex = new Simplex(t._2)
+      val result = simplex.Calculate()
+      println(result._1)
+      println(result._2)
+    }
   }
 }
