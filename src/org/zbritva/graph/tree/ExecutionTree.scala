@@ -24,8 +24,10 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     this._level_list
   }
 
-  def _constructSimpexOptimizationTask(): Unit = {
+  def _constructSimpexOptimizationTask(): Map[Int, Array[Array[Double]]] = {
     val levels = _level_list_tree.toList.sortBy(_._1)
+    var task: Map[Int, Array[Array[Double]]] = Map[Int, Array[Array[Double]]]()
+
     for (level <- levels) {
       if (level._1 == 0) {
         //skip zero level, because do nothing
@@ -56,7 +58,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         var constIndex: Int = 0
         for (functionValue <- level._2) {
           //TODO define shift for constraint coefficients index
-//          constIndex = additionalCopies * (index - 1) + 1
+          //          constIndex = additionalCopies * (index - 1) + 1
           for (child <- functionValue.getChilds()) {
             simplexTable(objectiveFunctionIndex)(index) = child._1
             simplexTable(constIndex)(index) = 1
@@ -64,9 +66,11 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
           }
           constIndex += 1
         }
-        println(simplexTable)
+        task = task.+(level._1 -> simplexTable)
         //construct constraints
       }
     }
+
+    task
   }
 }
