@@ -34,18 +34,38 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         //other cases
         val additionalCopies = level._1 - 1
         val currentLevelNodesCount = level._2.size
-        val objectiveFunctionSize: Int = currentLevelNodesCount + currentLevelNodesCount * additionalCopies
+        val objectiveFunctionSize: Int = currentLevelNodesCount + currentLevelNodesCount * additionalCopies + 1
+        val objectiveFunctionIndex: Int = currentLevelNodesCount
+        val contraintsCount: Int = currentLevelNodesCount + 1
+        //construct objective function
+        //        val objectiveFunction: Array[Double] = Array.fill(objectiveFunctionSize) {
+        //          0
+        //        }
 
-        val objectiveFunction: Array[Double] = Array.fill(objectiveFunctionSize) {
+        val simplexTable: Array[Array[Double]] = Array.fill(contraintsCount, objectiveFunctionSize) {
           0
         }
-        var index: Int = 0
-        for (functionValue <- level._2)
+
+        //set equal all constraints values to 1
+        //that means we must assign one worker for one task and vise-versa
+        for (constraint <- Range(0, simplexTable.length - 1)) {
+          simplexTable(constraint)(0) = 1
+        }
+
+        var index: Int = 1 //because 0 is OF value and always equal to 0 (it is just Simplex class requirements)
+        var constIndex: Int = 0
+        for (functionValue <- level._2) {
+          //TODO define shift for constraint coefficients index
+//          constIndex = additionalCopies * (index - 1) + 1
           for (child <- functionValue.getChilds()) {
-            objectiveFunction(index) = child._1
+            simplexTable(objectiveFunctionIndex)(index) = child._1
+            simplexTable(constIndex)(index) = 1
             index += 1
           }
-        println(objectiveFunction)
+          constIndex += 1
+        }
+        println(simplexTable)
+        //construct constraints
       }
     }
   }

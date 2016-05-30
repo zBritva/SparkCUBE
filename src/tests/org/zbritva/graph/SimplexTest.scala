@@ -27,7 +27,7 @@ class SimplexTest extends TestCase {
       Array(25, -3, 5),
       Array(30, -2, 5),
       Array(10, 1, 0),
-      Array(6, 3, -8),
+      Array(6,  3, -8),
       Array(0, -6, -5))
 
     simplex = new Simplex(table)
