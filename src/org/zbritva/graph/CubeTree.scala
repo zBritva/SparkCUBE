@@ -47,7 +47,7 @@ class CubeTree(columns: List[String]) {
           "*"
         }
         var child = getNode(node_cols)
-        if(child == null) {
+        if (child == null) {
           child = new TreeNode()
           child.setNodeColumns(node_cols)
           this.all_nodes = this.all_nodes.::(child)
@@ -63,7 +63,7 @@ class CubeTree(columns: List[String]) {
         //create node elements for childs
         for (nd <- new_nodes) {
           var child = getNode(nd)
-          if(child == null) {
+          if (child == null) {
             child = new TreeNode()
             child.setNodeColumns(nd)
             this.all_nodes = this.all_nodes.::(child)

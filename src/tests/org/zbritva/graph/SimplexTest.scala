@@ -11,7 +11,8 @@ import org.junit.Before
 import org.zbritva.graph.Simplex
 
 class SimplexTest extends TestCase {
-  var simplex: Simplex = _
+  var simplex1: Simplex = _
+  var simplex2: Simplex = _
 
   override def setUp: Unit = {
 
@@ -22,7 +23,7 @@ class SimplexTest extends TestCase {
 
 //  f(x1,x2) = 6x1 + 5x2 => max
 
-    val table: Array[Array[Double]]
+    val table1: Array[Array[Double]]
     = Array(
       Array(25, -3, 5),
       Array(30, -2, 5),
@@ -30,16 +31,27 @@ class SimplexTest extends TestCase {
       Array(6,  3, -8),
       Array(0, -6, -5))
 
-    simplex = new Simplex(table)
+    val table2: Array[Array[Double]]
+    = Array(
+      Array(4,  1, 1, 1),
+      Array(10, 5, 2, 1),
+      Array(0,  -5, -3, 0))
+
+    simplex1 = new Simplex(table1)
+    simplex2 = new Simplex(table2)
   }
 
   def testCalculation: Unit = {
-    val result = simplex.Calculate()
-    val simplex_table = result._1
-    val values = result._2
+    val result1 = simplex1.Calculate()
+    val simplex_table1 = result1._1
+    val values1 = result1._2
+    val values_check1 = Array[Double](10, 10)
+    assertArrayEquals("Check simplex method", values1, values_check1, 0.001)
 
-    val values_check = Array[Double](10, 10)
-
-    assertArrayEquals("Check simplex method", values, values_check, 0.001)
+    val result2 = simplex2.Calculate()
+    val simplex_table2 = result2._1
+    val values2 = result2._2
+    val values_check2 = Array[Double](2.0/3.0, 10.0/3, 0)
+    assertArrayEquals("Check simplex method", values2, values_check2, 0.001)
   }
 }

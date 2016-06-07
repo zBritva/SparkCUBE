@@ -22,7 +22,6 @@ class CubeTreeTest extends TestCase {
     val tree = cubtree.getTree
     val task = tree._constructSimpexOptimizationTask()
     print(task)
-    tree.solve()
     println(tree._level_list.toList.sortBy(_._1))
   }
 

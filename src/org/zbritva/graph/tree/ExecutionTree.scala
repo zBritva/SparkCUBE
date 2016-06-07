@@ -17,7 +17,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
   var _root: TreeNode = root
   var _level_list: Map[Int, immutable.Set[List[String]]] = level_list
   var _level_list_tree: Map[Int, mutable.Set[TreeNode]] = level_list_tree
-  var _task: Map[Int, Array[Array[Double]]] = null
+  var _task: Map[Int, (Array[Array[Double]], Array[Double])] = null
 
   def getRoot(): TreeNode = {
     this._root
@@ -27,9 +27,9 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     this._level_list
   }
 
-  def _constructSimpexOptimizationTask(): Map[Int, Array[Array[Double]]] = {
+  def _constructSimpexOptimizationTask(): Map[Int, (Array[Array[Double]],Array[Double])] = {
     val levels = _level_list_tree.toList.sortBy(_._1)
-    var task: Map[Int, Array[Array[Double]]] = Map[Int, Array[Array[Double]]]()
+    var task: Map[Int, (Array[Array[Double]], Array[Double])] = Map[Int, (Array[Array[Double]], Array[Double])]()
 
     for (level <- levels) {
       if (level._1 == 0) {
@@ -60,16 +60,25 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         var index: Int = 1 //because 0 is OF value and always equal to 0 (it is just Simplex class requirements)
         var constIndex: Int = 0
         for (functionValue <- level._2) {
-          //TODO define shift for constraint coefficients index
-          //          constIndex = additionalCopies * (index - 1) + 1
           for (child <- functionValue.getChilds()) {
-            simplexTable(objectiveFunctionIndex)(index) = child._1
+            if (index <= (objectiveFunctionSize - 1) / 2 || level._1 == 1) //for computing 0 level user only one costs, because for computing 0 level not matter how was sorted parents,
+              simplexTable(objectiveFunctionIndex)(index) = child._1 * (-1) //child._1 is cost of computing child from parent without sorting
+            else
+              simplexTable(objectiveFunctionIndex)(index) = child._2 * (-1) //child._2 is cost of computing child from parent with sorting
+            //-1 - because Simplex class solve maximization problem. For us need minimiza of cost
+
             simplexTable(constIndex)(index) = 1
             index += 1
           }
           constIndex += 1
         }
-        task = task.+(level._1 -> simplexTable)
+
+        //TODO check solution for 0 level computing
+        //
+        val simplexTask = new Simplex(simplexTable)
+        val resultSimplex = simplexTask.Calculate()
+
+        task = task.+(level._1 ->(simplexTable, resultSimplex._2))
         //construct constraints
       }
     }
@@ -78,12 +87,4 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     task
   }
 
-  def solve(): Unit ={
-    for(t <- this._task){
-      val simplex = new Simplex(t._2)
-      val result = simplex.Calculate()
-      println(result._1)
-      println(result._2)
-    }
-  }
 }

@@ -8,6 +8,7 @@ import scala.util.control.Breaks._
 import scala.collection.immutable.List
 
 //Simple class for solving optimization problem task
+//TODO test solving optimization problem with equality constraints
 class Simplex(source: Array[Array[Double]]) {
   var row_count: Int = source.length
   var col_count: Int = source(0).length

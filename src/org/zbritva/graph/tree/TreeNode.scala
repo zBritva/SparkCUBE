@@ -28,7 +28,7 @@ class TreeNode() {
   }
 
   def addChild(node: TreeNode): Unit ={
-    val relation = (Int.MaxValue, Int.MaxValue, node)
+    val relation = (Int.MaxValue, Int.MinValue, node)
     node_childs = node_childs.::(relation)
   }
 
