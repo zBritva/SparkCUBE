@@ -32,6 +32,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     var task: Map[Int, (Array[Array[Double]], Array[Double])] = Map[Int, (Array[Array[Double]], Array[Double])]()
 
     for (level <- levels) {
+
       if (level._1 == 0) {
         //skip zero level, because do nothing
 
@@ -41,16 +42,24 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         val currentLevelNodesCount = level._2.size
         val levelChildCount = level._2.head.getChilds().length
 //        val objectiveFunctionSize: Int = (currentLevelNodesCount + currentLevelNodesCount * additionalCopies + 1) * levelChildCount
-        val objectiveFunctionSize: Int = (currentLevelNodesCount * levelChildCount) * (additionalCopies + 1) + 1 //+1 because one columns for value of constraint
-        val objectiveFunctionIndex: Int = currentLevelNodesCount
-        val contraintsCount: Int = currentLevelNodesCount + 1
-        //construct objective function
-        //        val objectiveFunction: Array[Double] = Array.fill(objectiveFunctionSize) {
-        //          0
-        //        }
+        val objectiveFunctionSize: Int = currentLevelNodesCount * (additionalCopies + 1) + 1 //+1 because one columns for value of constraint
+        //because we must provide computing each node in previous level, we use same constraint count
+        //one constraint for one node of previous level
+        val contraintsCount: Int = levels(level._1 - 1)._2.size
 
-        val simplexTable: Array[Array[Double]] = Array.fill(contraintsCount, objectiveFunctionSize) {
+        val simplexTable: Array[Array[Double]] = Array.fill(contraintsCount + 1, objectiveFunctionSize) {
           0
+        }
+
+        val objectiveFunctionIndex: Int = simplexTable.length - 1
+
+        //define which node of previous level correspond to number of constraint
+        var groupByToConstraint: Map[String,Int] = Map[String,Int]()
+
+        var constraintIndex: Int = 0
+        for(previousLevelNode <- levels(level._1 - 1)._2) {
+          groupByToConstraint = groupByToConstraint.+(previousLevelNode.node_columns.mkString(";") -> constraintIndex)
+          constraintIndex += 1
         }
 
         //set equal all constraints values to 1
@@ -59,30 +68,32 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
           simplexTable(constraint)(0) = 1
         }
 
-        //TODO fix converter
         var index: Int = 1 //because 0 is OF value and always equal to 0 (it is just Simplex class requirements)
-        var constIndex: Int = 0
+        constraintIndex = 0
         for (functionValue <- level._2) {
           for (child <- functionValue.getChilds()) {
+            //TODO reconsider cost of child to computing from parent to cost of parent to cpmputing childs
             simplexTable(objectiveFunctionIndex)(index) = child._1 //child._1 - cost without sorting
-            simplexTable(constIndex)(index) = 1
-            index += 1
+            constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
+            simplexTable(constraintIndex)(index) = 1
           }
-          constIndex += 1
+          index += 1
+//          constraintIndex += 1
         }
         //so, next is additional copies costs
 
         //shift index to position of cost additional values
-        index = (currentLevelNodesCount * levelChildCount) + 1
+        index = currentLevelNodesCount + 1
         for (copy <- Range(0, additionalCopies)) {
-          constIndex = 0; //reset constraint index
+          constraintIndex = 0; //reset constraint index
           for (functionValue <- level._2) {
             for (child <- functionValue.getChilds()) {
               simplexTable(objectiveFunctionIndex)(index) = child._2 //child._2 - cost with sorting
-              simplexTable(constIndex)(index) = 1
-              index += 1
+              constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
+              simplexTable(constraintIndex)(index) = 1
             }
-            constIndex += 1
+//            constraintIndex += 1
+            index += 1
           }
         }
 
