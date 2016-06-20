@@ -45,7 +45,10 @@ class Simplex(source: Array[Array[Double]]) {
       0
     }
 
-    while (!isEnd()) {
+    var firstStage: Boolean = false
+
+    while (!isEnd() || firstStage) {
+      firstStage = false
       mainCol = findMainCol()
       mainRow = findMainRow(mainCol)
 

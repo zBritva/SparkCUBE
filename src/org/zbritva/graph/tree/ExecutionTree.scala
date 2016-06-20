@@ -39,7 +39,9 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         //other cases
         val additionalCopies = level._1 - 1
         val currentLevelNodesCount = level._2.size
-        val objectiveFunctionSize: Int = currentLevelNodesCount + currentLevelNodesCount * additionalCopies + 1
+        val levelChildCount = level._2.head.getChilds().length
+//        val objectiveFunctionSize: Int = (currentLevelNodesCount + currentLevelNodesCount * additionalCopies + 1) * levelChildCount
+        val objectiveFunctionSize: Int = (currentLevelNodesCount * levelChildCount) * (additionalCopies + 1) + 1 //+1 because one columns for value of constraint
         val objectiveFunctionIndex: Int = currentLevelNodesCount
         val contraintsCount: Int = currentLevelNodesCount + 1
         //construct objective function
@@ -57,24 +59,34 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
           simplexTable(constraint)(0) = 1
         }
 
+        //TODO fix converter
         var index: Int = 1 //because 0 is OF value and always equal to 0 (it is just Simplex class requirements)
         var constIndex: Int = 0
         for (functionValue <- level._2) {
           for (child <- functionValue.getChilds()) {
-            if (index <= (objectiveFunctionSize - 1) / 2 || level._1 == 1) //for computing 0 level user only one costs, because for computing 0 level not matter how was sorted parents,
-              simplexTable(objectiveFunctionIndex)(index) = child._1 * (-1) //child._1 is cost of computing child from parent without sorting
-            else
-              simplexTable(objectiveFunctionIndex)(index) = child._2 * (-1) //child._2 is cost of computing child from parent with sorting
-            //-1 - because Simplex class solve maximization problem. For us need minimiza of cost
-
+            simplexTable(objectiveFunctionIndex)(index) = child._1 //child._1 - cost without sorting
             simplexTable(constIndex)(index) = 1
             index += 1
           }
           constIndex += 1
         }
+        //so, next is additional copies costs
+
+        //shift index to position of cost additional values
+        index = (currentLevelNodesCount * levelChildCount) + 1
+        for (copy <- Range(0, additionalCopies)) {
+          constIndex = 0; //reset constraint index
+          for (functionValue <- level._2) {
+            for (child <- functionValue.getChilds()) {
+              simplexTable(objectiveFunctionIndex)(index) = child._2 //child._2 - cost with sorting
+              simplexTable(constIndex)(index) = 1
+              index += 1
+            }
+            constIndex += 1
+          }
+        }
 
         //TODO check solution for 0 level computing
-        //
         val simplexTask = new Simplex(simplexTable)
         val resultSimplex = simplexTask.Calculate()
 
