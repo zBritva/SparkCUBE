@@ -40,7 +40,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         //other cases
         val additionalCopies = level._1 - 1
         val currentLevelNodesCount = level._2.size
-        val levelChildCount = level._2.head.getChilds().length
+        val levelChildCount = level._2.head.getChildren().length
 //        val objectiveFunctionSize: Int = (currentLevelNodesCount + currentLevelNodesCount * additionalCopies + 1) * levelChildCount
         val objectiveFunctionSize: Int = currentLevelNodesCount * (additionalCopies + 1) + 1 //+1 because one columns for value of constraint
         //because we must provide computing each node in previous level, we use same constraint count
@@ -71,9 +71,8 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         var index: Int = 1 //because 0 is OF value and always equal to 0 (it is just Simplex class requirements)
         constraintIndex = 0
         for (functionValue <- level._2) {
-          for (child <- functionValue.getChilds()) {
-            //TODO reconsider cost of child to computing from parent to cost of parent to cpmputing childs
-            simplexTable(objectiveFunctionIndex)(index) = child._1 //child._1 - cost without sorting
+          for (child <- functionValue.getChildren()) {
+            simplexTable(objectiveFunctionIndex)(index) = functionValue.getCostOfWitoutSorting() //cost without sorting
             constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
             simplexTable(constraintIndex)(index) = 1
           }
@@ -87,8 +86,8 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         for (copy <- Range(0, additionalCopies)) {
           constraintIndex = 0; //reset constraint index
           for (functionValue <- level._2) {
-            for (child <- functionValue.getChilds()) {
-              simplexTable(objectiveFunctionIndex)(index) = child._2 //child._2 - cost with sorting
+            for (child <- functionValue.getChildren()) {
+              simplexTable(objectiveFunctionIndex)(index) = functionValue.getCostOfSorting() //cost with sorting
               constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
               simplexTable(constraintIndex)(index) = 1
             }

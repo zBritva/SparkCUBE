@@ -35,8 +35,8 @@ class TestOptimizationTask extends TestCase {
     }
 
     //recursive walk to children
-    if(node.getChilds() != null && node.getChilds().nonEmpty){
-      for(child <- node.getChilds()){
+    if(node.getChildren() != null && node.getChildren().nonEmpty){
+      for(child <- node.getChildren()){
         walkOnTree(child._3)
       }
     }

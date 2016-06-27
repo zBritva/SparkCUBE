@@ -13,7 +13,22 @@ class TreeNode() {
   //TODO change two costes count according child of node,
   // for each child must be defined two costes one for if parent properly sorted for this child,
   // other if parent not properly sotded
+
+  //costs are obsoleted
   var node_childs: List[(Int, Int, TreeNode)] = List[(Int, Int, TreeNode)]()
+
+  //If current node is properly sorted
+  var cost_with_sorting: Int = Int.MaxValue
+  //if current node not properly sorted
+  var cost_without_sorting: Int = Int.MinValue
+
+  def getCostOfSorting(): Int = {
+    cost_with_sorting
+  }
+
+  def getCostOfWitoutSorting(): Int = {
+    cost_without_sorting
+  }
 
   def setNodeColumns(columns: List[String]): Unit = {
     node_columns = columns.sorted(Ordering.String)
@@ -33,7 +48,7 @@ class TreeNode() {
     node_childs = node_childs.::(relation)
   }
 
-  def getChilds(): List[(Int, Int, TreeNode)] = {
+  def getChildren(): List[(Int, Int, TreeNode)] = {
     node_childs
   }
 

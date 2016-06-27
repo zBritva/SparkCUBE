@@ -91,7 +91,7 @@ class CubeTree(columns: List[String]) {
     level_list_tree = level_list_tree.updated(currentLevel, level_list_tree(currentLevel) + node)
     if (currentLevel == 0)
       return
-    for (child <- node.getChilds()) {
+    for (child <- node.getChildren()) {
       _recursiveWalkAcrossTree(child._3, currentLevel - 1)
     }
   }
