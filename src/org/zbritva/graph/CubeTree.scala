@@ -142,4 +142,8 @@ class CubeTree(columns: List[String]) {
     new ExecutionTree(root, level_list, level_list_tree)
   }
 
+  def getNodes: List[TreeNode] = {
+    this.all_nodes
+  }
+
 }

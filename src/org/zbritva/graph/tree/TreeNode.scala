@@ -1,5 +1,6 @@
 package org.zbritva.graph.tree
 
+
 /**
   * Created by iigaliev on 20.05.2016.
   */
@@ -14,20 +15,20 @@ class TreeNode() {
   // other if parent not properly sotded
   var node_childs: List[(Int, Int, TreeNode)] = List[(Int, Int, TreeNode)]()
 
-  def setNodeColumns(columns: List[String]): Unit ={
+  def setNodeColumns(columns: List[String]): Unit = {
     node_columns = columns.sorted(Ordering.String)
   }
 
-  def getNodeColumns(): List[String] ={
+  def getNodeColumns(): List[String] = {
     node_columns
   }
 
-  def addChild(node: TreeNode, sortedcost: Int, unsortedcost: Int): Unit ={
+  def addChild(node: TreeNode, sortedcost: Int, unsortedcost: Int): Unit = {
     val relation = (sortedcost, unsortedcost, node)
     node_childs = node_childs.::(relation)
   }
 
-  def addChild(node: TreeNode): Unit ={
+  def addChild(node: TreeNode): Unit = {
     val relation = (Int.MaxValue, Int.MinValue, node)
     node_childs = node_childs.::(relation)
   }
@@ -36,12 +37,12 @@ class TreeNode() {
     node_childs
   }
 
-//  override def equals(o: Any) = super.equals(o)
-//  override def hashCode = super.hashCode
+  //  override def equals(o: Any) = super.equals(o)
+  //  override def hashCode = super.hashCode
 
   override def hashCode: Int = {
     var strHash: String = ""
-    for(columns <- node_columns.sorted(Ordering.String)){
+    for (columns <- node_columns.sorted(Ordering.String)) {
       strHash += columns
     }
 
@@ -51,15 +52,27 @@ class TreeNode() {
   override def equals(other: Any) = other match {
     case that: TreeNode =>
       var strHash: String = ""
-      for(columns <- that.node_columns.sorted(Ordering.String)){
+      for (columns <- that.node_columns.sorted(Ordering.String)) {
         strHash += columns
       }
       var strHashOther: String = ""
-      for(columns <- this.node_columns.sorted(Ordering.String)){
+      for (columns <- this.node_columns.sorted(Ordering.String)) {
         strHashOther += columns
       }
 
       strHash.equals(strHashOther)
     case _ => false
+  }
+
+  def checkColumns(columns: List[String]): Boolean = {
+    val this_node_columns_set = getNodeColumns().toSet
+    val current_node_set = columns.toSet
+    var intersection = this_node_columns_set.intersect(current_node_set)
+
+    if (intersection.size == columns.length && intersection.size == this_node_columns_set.size) {
+      return true
+    }
+
+    false
   }
 }

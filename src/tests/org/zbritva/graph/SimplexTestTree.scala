@@ -29,11 +29,11 @@ class SimplexTestTree extends TestCase {
     simplex1 = new Simplex(table1)
   }
 
-//  def testComputingFirstLevel: Unit = {
+  def testComputingFirstLevel: Unit = {
 //    val result1 = simplex1.Calculate()
 //    val simplex_table1 = result1._1
 //    val values1 = result1._2
 //    val values_check1 = Array[Double](1, 0)
 //    assertArrayEquals("Check simplex method", values1, values_check1, 0.001)
-//  }
+  }
 }
