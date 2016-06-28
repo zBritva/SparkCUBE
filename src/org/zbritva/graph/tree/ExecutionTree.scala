@@ -37,12 +37,13 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         //skip zero level, because do nothing
 
       } else {
+        //TODO: need keep in mine about edges to children nodes
         //other cases
         val additionalCopies = level._1 - 1
         val currentLevelNodesCount = level._2.size
         val levelChildCount = level._2.head.getChildren().length
 //        val objectiveFunctionSize: Int = (currentLevelNodesCount + currentLevelNodesCount * additionalCopies + 1) * levelChildCount
-        val objectiveFunctionSize: Int = currentLevelNodesCount * (additionalCopies + 1) + 1 //+1 because one columns for value of constraint
+        val objectiveFunctionSize: Int = currentLevelNodesCount * levelChildCount * (additionalCopies + 1) + 1 //+1 because one columns for value of constraint
         //because we must provide computing each node in previous level, we use same constraint count
         //one constraint for one node of previous level
         val contraintsCount: Int = levels(level._1 - 1)._2.size
@@ -71,36 +72,39 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         var index: Int = 1 //because 0 is OF value and always equal to 0 (it is just Simplex class requirements)
         constraintIndex = 0
         for (functionValue <- level._2) {
+          var childIndex: Int = 0
           for (child <- functionValue.getChildren()) {
-            simplexTable(objectiveFunctionIndex)(index) = functionValue.getCostOfWitoutSorting() //cost without sorting
-            constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
-            simplexTable(constraintIndex)(index) = 1
+            for(childIndex <- Range(0, levelChildCount)) {
+              simplexTable(objectiveFunctionIndex)(index + childIndex) = functionValue.getCostOfWitoutSorting() * -1 //cost without sorting
+              constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
+              simplexTable(constraintIndex)(index + childIndex) = 1
+            }
           }
-          index += 1
-//          constraintIndex += 1
+          index += levelChildCount
         }
         //so, next is additional copies costs
 
         //shift index to position of cost additional values
-        index = currentLevelNodesCount + 1
+        index = currentLevelNodesCount * levelChildCount + 1
         for (copy <- Range(0, additionalCopies)) {
           constraintIndex = 0; //reset constraint index
           for (functionValue <- level._2) {
             for (child <- functionValue.getChildren()) {
-              simplexTable(objectiveFunctionIndex)(index) = functionValue.getCostOfSorting() //cost with sorting
-              constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
-              simplexTable(constraintIndex)(index) = 1
+              for(childIndex <- Range(0, levelChildCount)) {
+                simplexTable(objectiveFunctionIndex)(index + childIndex) = functionValue.getCostOfSorting() * -1 //cost with sorting
+                constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
+                simplexTable(constraintIndex)(index + childIndex) = 1
+              }
             }
-//            constraintIndex += 1
-            index += 1
+            index += levelChildCount
           }
         }
 
         //TODO check solution for 0 level computing
-        val simplexTask = new Simplex(simplexTable)
-        val resultSimplex = simplexTask.Calculate()
+//        val simplexTask = new Simplex(simplexTable)
+//        val resultSimplex = simplexTask.Calculate()
 
-        task = task.+(level._1 ->(simplexTable, resultSimplex._2))
+        task = task.+(level._1 ->(simplexTable, null))
         //construct constraints
       }
     }
@@ -109,4 +113,29 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     task
   }
 
+  def solveOptimizationTask(): Boolean ={
+    try{
+      for(level <- _task.keys.toList.sorted){
+        print("SOLVE ")
+        print(level)
+        println(" TASK")
+
+        var conditions = _task(level)._1
+
+        val simplex = new Simplex(conditions)
+        val solution = simplex.Calculate()
+
+        _task.updated(level,(conditions, solution))
+      }
+      true
+    }
+    catch {
+      case e: Exception =>
+        false
+    }
+  }
+
+  def constructOptimizedTree(): TreeNode ={
+    null
+  }
 }

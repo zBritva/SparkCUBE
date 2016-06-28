@@ -102,7 +102,7 @@ class CubeTree(columns: List[String]) {
       for (node <- this.all_nodes) {
         val parent_level_node_set = node.getNodeColumns().toSet
         val current_node_set = columns.toSet
-        var intersection = parent_level_node_set.intersect(current_node_set)
+        val intersection = parent_level_node_set.intersect(current_node_set)
 
         if (intersection.size == columns.length && intersection.size == parent_level_node_set.size) {
           result = node

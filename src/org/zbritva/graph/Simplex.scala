@@ -14,6 +14,8 @@ class Simplex(source: Array[Array[Double]]) {
   var col_count: Int = source(0).length
   var solution_length: Int = source(0).length - 1
 
+  val source_inversed = invertConditionTask(source)
+
   var simplex_table: Array[Array[Double]] = Array.fill(row_count, col_count + row_count - 1) {
     0
   }
@@ -23,7 +25,7 @@ class Simplex(source: Array[Array[Double]]) {
   for (row <- simplex_table.indices) {
     for (col <- simplex_table(row).indices) {
       if (col < col_count)
-        simplex_table(row)(col) = source(row)(col)
+        simplex_table(row)(col) = source_inversed(row)(col)
       else
         simplex_table(row)(col) = 0
     }
@@ -37,7 +39,7 @@ class Simplex(source: Array[Array[Double]]) {
 
   col_count = simplex_table(0).length
 
-  def Calculate(): Tuple2[Array[Array[Double]],Array[Double]]  = {
+  def Calculate(): Tuple2[Array[Array[Double]], Array[Double]] = {
     var mainCol: Int = 0
     var mainRow: Int = 0
 
@@ -129,5 +131,22 @@ class Simplex(source: Array[Array[Double]]) {
     }
 
     mainRow
+  }
+
+  def invertConditionTask(conditions:  Array[Array[Double]]): Array[Array[Double]] = {
+    var max = conditions(row_count - 1)(0)
+    for (col <- Range(0, col_count - 1)) {
+      if (Math.abs(max) < Math.abs(conditions(row_count - 1)(col))) {
+        max = conditions(row_count - 1)(col)
+      }
+    }
+
+    val sign = max / Math.abs(max)
+
+    for (col <- Range(1, conditions(0).length)) {
+      conditions(row_count - 1)(col) = sign * (Math.abs(max) - Math.abs(conditions(row_count - 1)(col)))
+    }
+
+    conditions
   }
 }

@@ -30,6 +30,14 @@ class TreeNode() {
     cost_without_sorting
   }
 
+  def setCostOfSorting(value: Int): Unit = {
+    cost_with_sorting = value
+  }
+
+  def setCostOfWitoutSorting(value: Int): Unit = {
+    cost_without_sorting = value
+  }
+
   def setNodeColumns(columns: List[String]): Unit = {
     node_columns = columns.sorted(Ordering.String)
   }
