@@ -14,7 +14,8 @@ class Simplex(source: Array[Array[Double]]) {
   var col_count: Int = source(0).length
   var solution_length: Int = source(0).length - 1
 
-  val source_inversed = source // invertConditionTask(source)
+  val source_inversed = invertConditionTask(source)
+//  val source_inversed = source
 
   var simplex_table: Array[Array[Double]] = Array.fill(row_count, col_count + row_count - 1) {
     0
@@ -151,6 +152,7 @@ class Simplex(source: Array[Array[Double]]) {
     }
 
     //находим наибольшую дробную часть среди базисных решений
+    val maxFractionBasisIndex = basis.indexOf(maxFractionIndex)
 
     //add constraint to basis
     val constraint: Array[Double] = Array.fill(simplex_table(0).length) {
@@ -159,11 +161,11 @@ class Simplex(source: Array[Array[Double]]) {
 
     //copy row with max fraction value with opposite sign
     for(index <- constraint.indices){
-      constraint(index) = -1 * simplex_table(maxFractionIndex-1)(index)
+      constraint(index) = -1 * simplex_table(maxFractionBasisIndex)(index)
     }
 
     //current plan for new constraint is max fraction of current optimal plan
-    constraint(0) = result(maxFractionIndex - 1).toInt - simplex_table(maxFractionIndex - 1)(0)
+    constraint(0) = result(maxFractionIndex - 1).toInt - simplex_table(maxFractionBasisIndex)(0)
     constraint(maxFractionIndex) = 0
 
     //дополнительное ограничение строится правильно

@@ -8,7 +8,8 @@ import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.rdd.RDD
 import org.zbritva.cube.NaiveCubing
-import org.zbritva.graph.{BiparteGrapthMatching, Simplex}
+import org.zbritva.graph.{BiparteGrapthMatching, CubeTree, Simplex}
+import tests.org.zbritva.graph.TestOptimizationTask
 
 object SparkCubeRun extends App {
 
@@ -24,15 +25,36 @@ object SparkCubeRun extends App {
 //    val result = distData.count()
 //    print(result)
 
-    val table2: Array[Array[Double]]
-    = Array(
-      Array(21,  5,  7),
-      Array(8,  -1,  3),
-      Array(0,  -1, -2))
+//    val table2: Array[Array[Double]]
+//    = Array(
+//      Array(21,  5,  7),
+//      Array(8,  -1,  3),
+//      Array(0,  -1, -2))
+//
+//    val simplex2 = new Simplex(table2)
+//    val result = simplex2.Calculate()
+//
+//    println(result)
 
-    val simplex2 = new Simplex(table2)
-    val result = simplex2.Calculate()
 
-    println(result)
+    //List of columns of cubing
+    val lst: List[String] = List(
+      "A", "B", "C"
+    )
+
+    val cubtree = new CubeTree(lst)
+
+    val tree = cubtree.getTree
+
+    new TestOptimizationTask().walkOnTree(tree.getRoot())
+
+    val task = tree._constructSimpexOptimizationTask()
+
+    println(task)
+
+    tree.solveOptimizationTask()
+
+    print("DONE")
+
   }
 }
