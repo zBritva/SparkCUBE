@@ -20,6 +20,7 @@ class Simplex(source: Array[Array[Double]]) {
     0
   }
 
+  //index - is row, value is column
   var basis: List[Int] = List[Int]()
 
   for (row <- simplex_table.indices) {
@@ -49,41 +50,125 @@ class Simplex(source: Array[Array[Double]]) {
 
     var firstStage: Boolean = false
 
-    while (!isEnd() || firstStage) {
-      firstStage = false
-      mainCol = findMainCol()
-      mainRow = findMainRow(mainCol)
+    var integerSolution: Boolean = false
 
-      basis = basis.updated(mainRow, mainCol)
+    while (!integerSolution) {
+      while (!isEnd() || firstStage) {
+        firstStage = false
+        mainCol = findMainCol()
+        mainRow = findMainRow(mainCol)
 
-      val new_table: Array[Array[Double]] = Array.fill(row_count, col_count) {
-        0
-      }
+        //exchange variables in main column and main row
+        //меняем переменные лещажие на главной строке и столбце меняются местами
+        basis = basis.updated(mainRow, mainCol)
 
-      for (col <- Range(0, col_count)) {
-        new_table(mainRow)(col) = simplex_table(mainRow)(col) / simplex_table(mainRow)(mainCol)
-      }
+        val new_table: Array[Array[Double]] = Array.fill(row_count, col_count) {
+          0
+        }
 
-      for (row <- Range(0, row_count)) {
-        if (row != mainRow) {
-          for (col <- Range(0, col_count)) {
-            new_table(row)(col) = simplex_table(row)(col) - simplex_table(row)(mainCol) * new_table(mainRow)(col)
+        //recalculate simplex table
+        //расчет симплекс таблицы
+
+        //divide elements on main column to main element
+        //элементы ведущей строки, разделяем на главный элемент
+        for (col <- Range(0, col_count)) {
+          new_table(mainRow)(col) = simplex_table(mainRow)(col) / simplex_table(mainRow)(mainCol)
+        }
+
+        //полученные элементы умножаем на главный элемент и складываем элементом строки
+        //given result multiply to minus main element and add to current element value (because minus main element- we are just subtract it)
+        for (row <- Range(0, row_count)) {
+          if (row != mainRow) {
+            for (col <- Range(0, col_count)) {
+              new_table(row)(col) = simplex_table(row)(col) - simplex_table(row)(mainCol) * new_table(mainRow)(col)
+            }
           }
         }
+        simplex_table = new_table
       }
-      simplex_table = new_table
-    }
 
-    for (index <- result.indices) {
-      val k = basis.indexOf(index + 1)
-      if (k != -1)
-        result(index) = simplex_table(k)(0)
-      else
-        result(index) = 0
+      for (index <- result.indices) {
+        val k = basis.indexOf(index + 1)
+        if (k != -1)
+          result(index) = simplex_table(k)(0)
+        else
+          result(index) = 0
+      }
+
+      integerSolution = isIntegerSolution(result)
+      if(!integerSolution)
+        addConstraint(result)
     }
 
     (simplex_table, result)
 
+  }
+
+  def isIntegerSolution(result: Array[Double]): Boolean ={
+    val epsilon = 0.001
+    for(solution <- result.indices){
+      if(Math.abs(result(solution) - result(solution).toInt) > epsilon){
+        return false
+      }
+    }
+
+    true
+  }
+
+  def addConstraint(result: Array[Double]): Unit ={
+    //TODO expand result
+    //find integer parts of solutions
+    val integer_part: Array[Int] = Array.fill(result.length) {
+      0
+    }
+
+    var maxFractionIndex = 0
+    for(index <- result.indices){
+      val k = basis.indexOf(index + 1)
+      if (k != -1) {
+        integer_part(index) = result(index).toInt
+        if (result(index) - integer_part(index) > result(maxFractionIndex).toInt - integer_part(maxFractionIndex)) {
+          maxFractionIndex = index + 1
+        }
+      }
+    }
+
+    //находим наибольшую дробную часть среди базисных решений
+
+    //add constraint to basis
+    val constraint: Array[Double] = Array.fill(simplex_table(0).length) {
+      0
+    }
+
+    //copy row with max fraction value with opposite sign
+    for(index <- constraint.indices){
+      constraint(index) = -1 * simplex_table(maxFractionIndex)(index)
+    }
+
+    //current plan for new constraint is max fraction of current optimal plan
+    constraint(0) = result(maxFractionIndex).toInt - simplex_table(maxFractionIndex)(0)
+    constraint(maxFractionIndex) = 0
+
+    simplex_table = simplex_table ++ Array(constraint)
+
+    //add columns of variable
+    for(index <- simplex_table.indices){
+      simplex_table(index) = simplex_table(index) :+ 0.0
+    }
+
+    simplex_table(simplex_table.length-1)(simplex_table(0).length - 1) = 1
+
+    //exchange two last rows
+    val first: Int = simplex_table.length - 1
+    val second: Int = simplex_table.length - 2
+    var buffer: Double = 0
+    for (index <- simplex_table(0).indices){
+      buffer = simplex_table(first)(index)
+      simplex_table(first)(index) = simplex_table(second)(index)
+      simplex_table(second)(index) = buffer
+    }
+
+      //basis = basis.::(simplex_table.length - 1)
   }
 
   def isEnd(): Boolean = {
@@ -101,16 +186,20 @@ class Simplex(source: Array[Array[Double]]) {
     flag
   }
 
+  //find main column: max element by ABS among negative coefficients of variable of function value
   def findMainCol(): Int = {
     var mainCol = 1
     for (col <- Range(2, col_count)) {
-      if (simplex_table(row_count - 1)(col) < simplex_table(row_count - 1)(mainCol))
-        mainCol = col
+      if(simplex_table(row_count - 1)(col) < 0 )
+        if (Math.abs(simplex_table(row_count - 1)(col)) > Math.abs(simplex_table(row_count - 1)(mainCol)))
+          mainCol = col
     }
 
     mainCol
   }
 
+  //find variable for removing from basis
+  //
   def findMainRow(mainCol: Int): Int = {
     var mainRow = 0
 

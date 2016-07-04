@@ -14,7 +14,7 @@ class TestOptimizationTask extends TestCase {
   override def setUp: Unit = {
     //List of columns of cubing
     val lst: List[String] = List(
-      "A", "B", "C", "D"
+      "A", "B", "C"
     )
 
     cubtree = new CubeTree(lst)
@@ -36,33 +36,13 @@ class TestOptimizationTask extends TestCase {
 
   def walkOnTree(node: TreeNode): Unit = {
     //ROOT NODE
-    if (node.checkColumns(List("A", "B", "C", "D"))) {
+    if (node.checkColumns(List("A", "B", "C"))) {
       node.setCostOfWitoutSorting(12)
       node.setCostOfSorting(26)
     }
 
     if (node.checkColumns(List("*"))) {
       return
-    }
-
-    if (node.checkColumns(List("A", "B", "C"))) {
-      node.setCostOfWitoutSorting(3)
-      node.setCostOfSorting(9)
-    }
-
-    if (node.checkColumns(List("D", "B", "C"))) {
-      node.setCostOfWitoutSorting(6)
-      node.setCostOfSorting(14)
-    }
-
-    if (node.checkColumns(List("A", "D", "C"))) {
-      node.setCostOfWitoutSorting(1)
-      node.setCostOfSorting(13)
-    }
-
-    if (node.checkColumns(List("A", "B", "D"))) {
-      node.setCostOfWitoutSorting(7)
-      node.setCostOfSorting(13)
     }
 
     if (node.checkColumns(List("A", "B"))) {
@@ -75,24 +55,9 @@ class TestOptimizationTask extends TestCase {
       node.setCostOfSorting(20)
     }
 
-    if (node.checkColumns(List("C", "D"))) {
-      node.setCostOfWitoutSorting(20)
-      node.setCostOfSorting(25)
-    }
-
-    if (node.checkColumns(List("A", "D"))) {
-      node.setCostOfWitoutSorting(10)
-      node.setCostOfSorting(18)
-    }
-
     if (node.checkColumns(List("A", "C"))) {
       node.setCostOfWitoutSorting(5)
       node.setCostOfSorting(12)
-    }
-
-    if (node.checkColumns(List("D", "B"))) {
-      node.setCostOfWitoutSorting(14)
-      node.setCostOfSorting(19)
     }
 
     if (node.checkColumns(List("A"))) {
@@ -108,11 +73,6 @@ class TestOptimizationTask extends TestCase {
     if (node.checkColumns(List("C"))) {
       node.setCostOfWitoutSorting(6)
       node.setCostOfSorting(8)
-    }
-
-    if (node.checkColumns(List("D"))) {
-      node.setCostOfWitoutSorting(4)
-      node.setCostOfSorting(6)
     }
 
     //recursive walk to children

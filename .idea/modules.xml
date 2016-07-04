@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SparkCUBE.iml" filepath="$PROJECT_DIR$/SparkCUBE.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SparkCube.iml" filepath="$PROJECT_DIR$/SparkCube.iml" />
     </modules>
   </component>
 </project>

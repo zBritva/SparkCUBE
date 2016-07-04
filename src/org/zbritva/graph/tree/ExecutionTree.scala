@@ -131,7 +131,8 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     }
     catch {
       case e: Exception =>
-        false
+        println("EXCEPTION:")
+        throw e
     }
   }
 
