@@ -14,7 +14,7 @@ class Simplex(source: Array[Array[Double]]) {
   var col_count: Int = source(0).length
   var solution_length: Int = source(0).length - 1
 
-  val source_inversed = invertConditionTask(source)
+  val source_inversed = source // invertConditionTask(source)
 
   var simplex_table: Array[Array[Double]] = Array.fill(row_count, col_count + row_count - 1) {
     0
@@ -44,11 +44,11 @@ class Simplex(source: Array[Array[Double]]) {
     var mainCol: Int = 0
     var mainRow: Int = 0
 
-    val result: Array[Double] = Array.fill(solution_length) {
+    var result: Array[Double] = Array.fill(solution_length) {
       0
     }
 
-    var firstStage: Boolean = false
+    var firstStage: Boolean = true
 
     var integerSolution: Boolean = false
 
@@ -96,8 +96,25 @@ class Simplex(source: Array[Array[Double]]) {
       }
 
       integerSolution = isIntegerSolution(result)
-      if(!integerSolution)
+      if(!integerSolution) {
         addConstraint(result)
+        //expand result lenght, because we added new constraint variable
+        result = result :+ 0.0
+        //because we added new variable, need one step of simplex method
+        //Так как добавили новую переменную, и получили новую задачу, который нужно решить
+        firstStage = true
+      }
+      else{
+        for (index <- result.indices) {
+          result(index) = Math.round(result(index))
+        }
+      }
+
+      for (index <- result.indices) {
+        print(result(index))
+        print(", ")
+      }
+      println("ITERATION")
     }
 
     (simplex_table, result)
@@ -107,7 +124,7 @@ class Simplex(source: Array[Array[Double]]) {
   def isIntegerSolution(result: Array[Double]): Boolean ={
     val epsilon = 0.001
     for(solution <- result.indices){
-      if(Math.abs(result(solution) - result(solution).toInt) > epsilon){
+      if(Math.abs(result(solution) - Math.round(result(solution))) > epsilon){
         return false
       }
     }
@@ -142,19 +159,22 @@ class Simplex(source: Array[Array[Double]]) {
 
     //copy row with max fraction value with opposite sign
     for(index <- constraint.indices){
-      constraint(index) = -1 * simplex_table(maxFractionIndex)(index)
+      constraint(index) = -1 * simplex_table(maxFractionIndex-1)(index)
     }
 
     //current plan for new constraint is max fraction of current optimal plan
-    constraint(0) = result(maxFractionIndex).toInt - simplex_table(maxFractionIndex)(0)
+    constraint(0) = result(maxFractionIndex - 1).toInt - simplex_table(maxFractionIndex - 1)(0)
     constraint(maxFractionIndex) = 0
 
+    //дополнительное ограничение строится правильно
     simplex_table = simplex_table ++ Array(constraint)
 
     //add columns of variable
     for(index <- simplex_table.indices){
       simplex_table(index) = simplex_table(index) :+ 0.0
     }
+    col_count += 1
+    row_count += 1
 
     simplex_table(simplex_table.length-1)(simplex_table(0).length - 1) = 1
 
@@ -168,7 +188,8 @@ class Simplex(source: Array[Array[Double]]) {
       simplex_table(second)(index) = buffer
     }
 
-      //basis = basis.::(simplex_table.length - 1)
+    //TODO добавить в базис
+    basis = basis ::: List(simplex_table(0).length - 1)
   }
 
   def isEnd(): Boolean = {
@@ -189,9 +210,18 @@ class Simplex(source: Array[Array[Double]]) {
   //find main column: max element by ABS among negative coefficients of variable of function value
   def findMainCol(): Int = {
     var mainCol = 1
-    for (col <- Range(2, col_count)) {
-      if(simplex_table(row_count - 1)(col) < 0 )
-        if (Math.abs(simplex_table(row_count - 1)(col)) > Math.abs(simplex_table(row_count - 1)(mainCol)))
+
+    //Находим первую попавшуюся не базисную переменную
+    breakable {
+      for (col <- Range(1, col_count)) {
+        if (basis.indexOf(col) == -1) {
+          mainCol = col
+          break()
+        }
+      }
+    }
+    for (col <- Range(1, col_count)) {
+      if (simplex_table(row_count - 1)(col) < simplex_table(row_count - 1)(mainCol) && basis.indexOf(col) == -1) //basis.indexOf(col) == -1 - among not basis variables
           mainCol = col
     }
 
