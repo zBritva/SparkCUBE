@@ -40,27 +40,35 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         //TODO: need keep in mine about edges to children nodes
         //other cases
         val additionalCopies = level._1 - 1
-        val currentLevelNodesCount = level._2.size
+        val levelNodesCount = level._2.size
+        val prevLevelNodesCount = levels(level._1 - 1)._2.size
         val levelChildCount = level._2.head.getChildren().length
 //        val objectiveFunctionSize: Int = (currentLevelNodesCount + currentLevelNodesCount * additionalCopies + 1) * levelChildCount
-        val objectiveFunctionSize: Int = currentLevelNodesCount * levelChildCount * (additionalCopies + 1) + 1 //+1 because one columns for value of constraint
+        val objectiveFunctionSize: Int = levelNodesCount * prevLevelNodesCount * (additionalCopies + 1) + levelNodesCount + 1 //+1 because one columns for value of constraint
         //because we must provide computing each node in previous level, we use same constraint count
         //one constraint for one node of previous level
-        val contraintsCount: Int = levels(level._1 - 1)._2.size
+        val constraintsCount: Int = levelNodesCount * (additionalCopies + 1) + prevLevelNodesCount
 
-        val simplexTable: Array[Array[Double]] = Array.fill(contraintsCount + 1, objectiveFunctionSize) {
+        val simplexTable: Array[Array[Double]] = Array.fill(constraintsCount + 1, objectiveFunctionSize) {
           0
         }
 
-        val objectiveFunctionIndex: Int = simplexTable.length - 1
+        val OFIndex: Int = simplexTable.length - 1
 
         //define which node of previous level correspond to number of constraint
         var groupByToConstraint: Map[String,Int] = Map[String,Int]()
+        var groupByToVariable: Map[String,Int] = Map[String,Int]()
 
         var constraintIndex: Int = 0
         for(previousLevelNode <- levels(level._1 - 1)._2) {
           groupByToConstraint = groupByToConstraint.+(previousLevelNode.node_columns.mkString(";") -> constraintIndex)
           constraintIndex += 1
+        }
+
+        var variableIndex: Int = 1
+        for (levelNode <- level._2) {
+          groupByToVariable = groupByToVariable.+(levelNode.node_columns.mkString(";") -> variableIndex)
+          variableIndex += 1
         }
 
         //set equal all constraints values to 1
@@ -69,40 +77,42 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
           simplexTable(constraint)(0) = 1
         }
 
-        var index: Int = 1 //because 0 is OF value and always equal to 0 (it is just Simplex class requirements)
-        constraintIndex = 0
-        for (functionValue <- level._2) {
-          var childIndex: Int = 0
-          for (child <- functionValue.getChildren()) {
-            for(childIndex <- Range(0, levelChildCount)) {
-              simplexTable(objectiveFunctionIndex)(index + childIndex) = functionValue.getCostOfWitoutSorting() * -1 //cost without sorting
+        //set function values
+        for (copy <- Range(0, additionalCopies + 1)) {
+          for (levelNode <- level._2) {
+            for (child <- levelNode.getChildren()) {
               constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
-              simplexTable(constraintIndex)(index + childIndex) = 1
-            }
-          }
-          index += levelChildCount
-        }
-        //so, next is additional copies costs
+              variableIndex = groupByToVariable(levelNode.node_columns.mkString(";"))
+              var value = -1
+              if(copy == 0)
+                value = levelNode.getCostOfWitoutSorting()
+              else
+                value = levelNode.getCostOfSorting()
 
-        //shift index to position of cost additional values
-        index = currentLevelNodesCount * levelChildCount + 1
-        for (copy <- Range(0, additionalCopies)) {
-          constraintIndex = 0; //reset constraint index
-          for (functionValue <- level._2) {
-            for (child <- functionValue.getChildren()) {
-              for(childIndex <- Range(0, levelChildCount)) {
-                simplexTable(objectiveFunctionIndex)(index + childIndex) = functionValue.getCostOfSorting() * -1 //cost with sorting
-                constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
-                simplexTable(constraintIndex)(index + childIndex) = 1
-              }
+              simplexTable(OFIndex)(variableIndex + (levelNodesCount * constraintIndex) + (levelNodesCount * copy)) = value
+              simplexTable(constraintIndex)(variableIndex + (levelNodesCount * constraintIndex) + (levelNodesCount * copy)) = 1
             }
-            index += levelChildCount
           }
         }
 
-        //TODO check solution for 0 level computing
-//        val simplexTask = new Simplex(simplexTable)
-//        val resultSimplex = simplexTask.Calculate()
+        val additionalVariablesBeginIndex: Int = 1 + levelNodesCount * (additionalCopies + 1)
+
+        val baseConstraintShift = levelChildCount //because we were make one iteration
+        for (copy <- Range(0, additionalCopies + 1)) {
+          for (levelNode <- level._2) {
+            for (child <- levelNode.getChildren()) {
+              constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
+              variableIndex = groupByToVariable(levelNode.node_columns.mkString(";"))
+              //shift constraint index
+              constraintIndex += baseConstraintShift + (levelChildCount * copy) + variableIndex - 1
+
+              simplexTable(constraintIndex)(variableIndex) = 1
+              simplexTable(constraintIndex)(variableIndex - 1 + additionalVariablesBeginIndex) = 1
+            }
+          }
+        }
+
+        //TODO Additional constraints
 
         task = task.+(level._1 ->(simplexTable, null))
         //construct constraints
