@@ -5,3 +5,5 @@ out
 .idea/workspace.xml
 .idea/artifacts/SparkCUBE_jar.xml
 src/META-INF/MANIFEST.MF
+docs/~$second_step_simplex_table.xlsx
+SparkCube.iml
