@@ -90,7 +90,6 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
                 value = levelNode.getCostOfSorting()
 
               //constraintIndex * levelNodesCount * (additionalCopies + 1) + variableIndex + (copy * levelNodesCount)
-              //TODO fix function variables coefficients setting
               simplexTable(OFIndex)(constraintIndex * levelNodesCount * (additionalCopies + 1) + variableIndex + (copy * levelNodesCount)) = value
               simplexTable(constraintIndex)(constraintIndex * levelNodesCount * (additionalCopies + 1) + variableIndex + (copy * levelNodesCount)) = 1
 //              simplexTable(OFIndex)(variableIndex + (levelNodesCount * constraintIndex) + (levelNodesCount * copy)) = value
