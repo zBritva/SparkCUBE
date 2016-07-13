@@ -90,7 +90,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
                 value = levelNode.getCostOfSorting()
 
               //constraintIndex * levelNodesCount * (additionalCopies + 1) + variableIndex + (copy * levelNodesCount)
-              simplexTable(OFIndex)(constraintIndex * levelNodesCount * (additionalCopies + 1) + variableIndex + (copy * levelNodesCount)) = value
+              simplexTable(OFIndex)(constraintIndex * levelNodesCount * (additionalCopies + 1) + variableIndex + (copy * levelNodesCount)) = -value
               simplexTable(constraintIndex)(constraintIndex * levelNodesCount * (additionalCopies + 1) + variableIndex + (copy * levelNodesCount)) = 1
 //              simplexTable(OFIndex)(variableIndex + (levelNodesCount * constraintIndex) + (levelNodesCount * copy)) = value
 //              simplexTable(constraintIndex)(variableIndex + (levelNodesCount * constraintIndex) + (levelNodesCount * copy)) = 1
@@ -128,6 +128,10 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     task
   }
 
+  def _resortOrderOfNodeColumns(): Unit ={
+
+  }
+
   def solveOptimizationTask(): Boolean ={
     try{
       for(level <- _task.keys.toList.sorted){
@@ -135,10 +139,12 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         print(level)
         println(" TASK")
 
-        var conditions = _task(level)._1
+        val conditions = _task(level)._1
 
         val simplex = new Simplex(conditions)
         val solution = simplex.Calculate()
+
+        //TODO resort order of node columns, according solution of simplex optimization task
 
         _task.updated(level,(conditions, solution))
       }

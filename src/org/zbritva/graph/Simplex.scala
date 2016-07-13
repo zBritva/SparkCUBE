@@ -256,16 +256,24 @@ class Simplex(source: Array[Array[Double]]) {
 
   def invertConditionTask(conditions:  Array[Array[Double]]): Array[Array[Double]] = {
     var max = conditions(row_count - 1)(0)
+    var min = conditions(row_count - 1)(0)
+
     for (col <- Range(0, col_count - 1)) {
-      if (Math.abs(max) < Math.abs(conditions(row_count - 1)(col))) {
-        max = conditions(row_count - 1)(col)
+      if(conditions(row_count - 1)(col).toInt != 0) {
+        if (Math.abs(max) < Math.abs(conditions(row_count - 1)(col))) {
+          max = conditions(row_count - 1)(col)
+        }
+        if (Math.abs(min).toInt == 0 || Math.abs(min) > Math.abs(conditions(row_count - 1)(col))) {
+          min = conditions(row_count - 1)(col)
+        }
       }
     }
 
     val sign = max / Math.abs(max)
 
     for (col <- Range(1, conditions(0).length)) {
-      conditions(row_count - 1)(col) = sign * (Math.abs(max) - Math.abs(conditions(row_count - 1)(col)))
+      if(conditions(row_count - 1)(col).toInt != 0)
+        conditions(row_count - 1)(col) = sign * (Math.abs(max) + Math.abs(min) - Math.abs(conditions(row_count - 1)(col)))
     }
 
     conditions
