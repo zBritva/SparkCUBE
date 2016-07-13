@@ -86,11 +86,12 @@ Evaluation with comparing mrcube implementation on pig latin1 is not possible, b
 |5.3| Implement cost evaluation for sort cost |  |
 |5.4| Implement converter CUBE computation tree to series of optimization problem task | DONE |
 |5.5| Implement converter optimization problem task to Simplex method input format | DONE  |
-|5.6| Implement full optimization problem solver | IN PROGRESS |
+|5.6| Implement full optimization problem solver | DONE |
 |5.7| Implement physical plan constructor |  |
 |6| Prepare large dataset for testing and comparing | DONE |
 |7| Make meashures for comparing efficient of implementation |  |
-|8| Write report. | IN PROGRESS |
+|8| Write simple script to evaluate CUBE computation by using simple group by's |  |
+|9| Write report. | IN PROGRESS |
 
 # Refferences: 
 
