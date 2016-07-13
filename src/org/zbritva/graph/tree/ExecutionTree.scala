@@ -17,7 +17,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
   var _root: TreeNode = root
   var _level_list: Map[Int, immutable.Set[List[String]]] = level_list
   var _level_list_tree: Map[Int, mutable.Set[TreeNode]] = level_list_tree
-  var _task: Map[Int, (Array[Array[Double]], Array[Double])] = null
+  var _task: Map[Int, (Array[Array[Double]], Array[Double], Map[String,Int], Map[String,Int])] = null
 
   def getRoot(): TreeNode = {
     this._root
@@ -29,7 +29,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
 
   def _constructSimpexOptimizationTask(): Map[Int, (Array[Array[Double]],Array[Double])] = {
     val levels = _level_list_tree.toList.sortBy(_._1)
-    var task: Map[Int, (Array[Array[Double]], Array[Double])] = Map[Int, (Array[Array[Double]], Array[Double])]()
+    var task: Map[Int, (Array[Array[Double]], Array[Double], Map[String,Int], Map[String,Int])] = Map[Int, (Array[Array[Double]], Array[Double], Map[String,Int], Map[String,Int])]()
 
     for (level <- levels) {
 
@@ -117,9 +117,8 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
           }
         }
 
-        //TODO Additional constraints
-
-        task = task.+(level._1 ->(simplexTable, null))
+        //groupByToVariable, groupByToConstraint - need for decode simplex table results and change order of sorting node columns
+        task = task.+(level._1 ->(simplexTable, null, groupByToVariable, groupByToConstraint))
         //construct constraints
       }
     }
