@@ -259,11 +259,11 @@ class Simplex(source: Array[Array[Double]]) {
     var min = conditions(row_count - 1)(0)
 
     for (col <- Range(0, col_count - 1)) {
-      if(conditions(row_count - 1)(col).toInt != 0) {
+      if(conditions(row_count - 1)(col).toString != "0.0") {
         if (Math.abs(max) < Math.abs(conditions(row_count - 1)(col))) {
           max = conditions(row_count - 1)(col)
         }
-        if (Math.abs(min).toInt == 0 || Math.abs(min) > Math.abs(conditions(row_count - 1)(col))) {
+        if (Math.abs(min).toString == "0.0" || Math.abs(min) > Math.abs(conditions(row_count - 1)(col))) {
           min = conditions(row_count - 1)(col)
         }
       }

@@ -17,7 +17,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
   var _root: TreeNode = root
   var _level_list: Map[Int, immutable.Set[List[String]]] = level_list
   var _level_list_tree: Map[Int, mutable.Set[TreeNode]] = level_list_tree
-  var _task: Map[Int, (Array[Array[Double]], Array[Double], Map[String,Int], Map[String,Int])] = null
+  var _task: Map[Int, (Array[Array[Double]], Array[Double], Map[String, Int], Map[String, Int])] = null
 
   def getRoot(): TreeNode = {
     this._root
@@ -27,23 +27,20 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     this._level_list
   }
 
-  def _constructSimpexOptimizationTask(): Map[Int, (Array[Array[Double]],Array[Double])] = {
+  def _constructSimpexOptimizationTask(): Map[Int, (Array[Array[Double]], Array[Double], Map[String, Int], Map[String, Int])] = {
     val levels = _level_list_tree.toList.sortBy(_._1)
-    var task: Map[Int, (Array[Array[Double]], Array[Double], Map[String,Int], Map[String,Int])] = Map[Int, (Array[Array[Double]], Array[Double], Map[String,Int], Map[String,Int])]()
+    var task: Map[Int, (Array[Array[Double]], Array[Double], Map[String, Int], Map[String, Int])] = Map[Int, (Array[Array[Double]], Array[Double], Map[String, Int], Map[String, Int])]()
 
     for (level <- levels) {
 
-      if (level._1 == 0) {
-        //skip zero level, because do nothing
-
-      } else {
+      if (level._1 != 0) {
         //TODO: need keep in mine about edges to children nodes
         //other cases
         val additionalCopies = level._1 - 1
         val levelNodesCount = level._2.size
         val prevLevelNodesCount = levels(level._1 - 1)._2.size
         val levelChildCount = level._2.head.getChildren().length
-//        val objectiveFunctionSize: Int = (currentLevelNodesCount + currentLevelNodesCount * additionalCopies + 1) * levelChildCount
+        //        val objectiveFunctionSize: Int = (currentLevelNodesCount + currentLevelNodesCount * additionalCopies + 1) * levelChildCount
         val objectiveFunctionSize: Int = levelNodesCount * prevLevelNodesCount * (additionalCopies + 1) + levelNodesCount * (additionalCopies + 1) + 1 //+1 because one columns for value of constraint
         //because we must provide computing each node in previous level, we use same constraint count
         //one constraint for one node of previous level
@@ -56,11 +53,11 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         val OFIndex: Int = simplexTable.length - 1
 
         //define which node of previous level correspond to number of constraint
-        var groupByToConstraint: Map[String,Int] = Map[String,Int]()
-        var groupByToVariable: Map[String,Int] = Map[String,Int]()
+        var groupByToConstraint: Map[String, Int] = Map[String, Int]()
+        var groupByToVariable: Map[String, Int] = Map[String, Int]()
 
         var constraintIndex: Int = 0
-        for(previousLevelNode <- levels(level._1 - 1)._2) {
+        for (previousLevelNode <- levels(level._1 - 1)._2) {
           groupByToConstraint = groupByToConstraint.+(previousLevelNode.node_columns.mkString(";") -> constraintIndex)
           constraintIndex += 1
         }
@@ -84,7 +81,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
               constraintIndex = groupByToConstraint(child._3.node_columns.mkString(";"))
               variableIndex = groupByToVariable(levelNode.node_columns.mkString(";"))
               var value = -1
-              if(copy == 0)
+              if (copy == 0)
                 value = levelNode.getCostOfWitoutSorting()
               else
                 value = levelNode.getCostOfSorting()
@@ -92,8 +89,8 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
               //constraintIndex * levelNodesCount * (additionalCopies + 1) + variableIndex + (copy * levelNodesCount)
               simplexTable(OFIndex)(constraintIndex * levelNodesCount * (additionalCopies + 1) + variableIndex + (copy * levelNodesCount)) = -value
               simplexTable(constraintIndex)(constraintIndex * levelNodesCount * (additionalCopies + 1) + variableIndex + (copy * levelNodesCount)) = 1
-//              simplexTable(OFIndex)(variableIndex + (levelNodesCount * constraintIndex) + (levelNodesCount * copy)) = value
-//              simplexTable(constraintIndex)(variableIndex + (levelNodesCount * constraintIndex) + (levelNodesCount * copy)) = 1
+              //              simplexTable(OFIndex)(variableIndex + (levelNodesCount * constraintIndex) + (levelNodesCount * copy)) = value
+              //              simplexTable(constraintIndex)(variableIndex + (levelNodesCount * constraintIndex) + (levelNodesCount * copy)) = 1
             }
           }
         }
@@ -127,13 +124,89 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     task
   }
 
-  def _resortOrderOfNodeColumns(): Unit ={
+  def _resortNodesColumns(parent: String, child: String): (String, String) = {
+    if (child == "*") {
+      return (parent, child)
+    }
+    else {
+      val child_columns = child.split(";")
+      var new_parent = parent
 
+      for (ch <- child_columns) {
+        new_parent = new_parent.replace(ch, "")
+      }
+
+
+      if (new_parent(0) == ';') {
+        new_parent = new_parent.substring(1)
+      }
+
+      new_parent = child + ";" + new_parent
+      return (new_parent, child)
+    }
   }
 
-  def solveOptimizationTask(): Boolean ={
-    try{
-      for(level <- _task.keys.toList.sorted){
+  def _constructExecutionTree(): List[(String, String)] = {
+    try {
+      val tree_level = _level_list_tree.toList.sortBy(_._1)
+      var executionTree: List[(String, String)] = List[(String, String)]()
+      for (level <- _level_list_tree.keys.toList.sorted) {
+        if (level != 0) {
+          print("RESORT ")
+          print(level)
+          println(" TASK")
+
+          val result = _task(level)._2
+          var groupByToVariable = _task(level)._3.map(_.swap)
+          val groupByToConstraint = _task(level)._4.map(_.swap)
+
+          val additionalCopies = tree_level(level)._1 - 1
+          val levelNodesCount = tree_level(level)._2.size
+          val prevLevelNodesCount = tree_level(tree_level(level)._1 - 1)._2.size
+          val levelChildCount = tree_level(level)._2.head.getChildren().length
+
+          val grSize = groupByToVariable.size
+          for (ac <- Range(1, additionalCopies + 1)) {
+            for (gr: Int <- groupByToVariable.keys.toList) {
+              var valueSuffic = ""
+              for (ac <- Range(0, ac)) {
+                valueSuffic += "'"
+              }
+              groupByToVariable = groupByToVariable.+((gr + grSize).toInt -> (groupByToVariable(gr) + valueSuffic))
+            }
+          }
+
+          for (value <- Range(0, result.length - (levelNodesCount * (additionalCopies + 1)))) {
+            if (result(value).toString != "0.0") {
+              var constraintIndex = (value + 1) / (levelNodesCount * (additionalCopies + 1))
+              if ((value + 1) == levelNodesCount * (additionalCopies + 1)) {
+                constraintIndex = 0
+              }
+              val variableIndex = (value + 1) - (levelNodesCount * (additionalCopies + 1)) * constraintIndex
+
+              //TODO replace child of current level by parents of previous level
+              val tmp = _resortNodesColumns(groupByToVariable(variableIndex), groupByToConstraint(constraintIndex))
+              executionTree = executionTree.::(tmp)
+              print(tmp._1)
+              print(" -> ")
+              println(tmp._2)
+            }
+          }
+          println("-------------")
+        }
+      }
+      executionTree
+    }
+    catch {
+      case e: Exception =>
+        println("EXCEPTION:")
+        throw e
+    }
+  }
+
+  def solveOptimizationTask(): List[(String, String)] = {
+    try {
+      for (level <- _task.keys.toList.sorted) {
         print("SOLVE ")
         print(level)
         println(" TASK")
@@ -143,11 +216,11 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
         val simplex = new Simplex(conditions)
         val solution = simplex.Calculate()
 
-        //TODO resort order of node columns, according solution of simplex optimization task
-
-        _task.updated(level,(conditions, solution))
+        //TODO resort order of node columns, according solution of simplex optimization task (75%)
+        _task = _task.updated(level, (conditions, solution._2, _task(level)._3, _task(level)._4))
       }
-      true
+
+      return _constructExecutionTree()
     }
     catch {
       case e: Exception =>
@@ -156,7 +229,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     }
   }
 
-  def constructOptimizedTree(): TreeNode ={
+  def constructOptimizedTree(): TreeNode = {
     null
   }
 }
