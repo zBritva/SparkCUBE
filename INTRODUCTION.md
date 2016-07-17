@@ -78,8 +78,8 @@ Evaluation with comparing mrcube implementation on pig latin1 is not possible, b
 |---|---|---|
 |1| Learn Apache Spark/Scala | DONE |
 |2| Simple implementaton of PipeSort | DONE* |
-|3| Overview of Spark optimization information on Spark |  |
-|4| How can I user optimization information for my efficient implementation |  |
+|3| Overview of Spark optimization information on Spark | SKIP |
+|4| How can I user optimization information for my efficient implementation | SKIP |
 |5| Implementation of approach | IN PROGRESS |
 |5.1| Implement Simplex method for solving optimization problem task | DONE |
 |5.2| Implement CUBE computation tree constructor | DONE |
@@ -87,10 +87,10 @@ Evaluation with comparing mrcube implementation on pig latin1 is not possible, b
 |5.4| Implement converter CUBE computation tree to series of optimization problem task | DONE |
 |5.5| Implement converter optimization problem task to Simplex method input format | DONE  |
 |5.6| Implement full optimization problem solver | DONE |
-|5.7| Implement physical plan constructor |  |
+|5.7| Implement physical plan constructor | DONE |
 |6| Prepare large dataset for testing and comparing | DONE |
 |7| Make meashures for comparing efficient of implementation |  |
-|8| Write simple script to evaluate CUBE computation by using simple group by's |  |
+|8| Write simple script to evaluate CUBE computation by using simple group by's(NaiveCubing) |  |
 |9| Write report. | IN PROGRESS |
 
 # Refferences: 
