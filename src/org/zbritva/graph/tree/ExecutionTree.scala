@@ -4,6 +4,7 @@ import org.zbritva.graph.Simplex
 
 import scala.collection.mutable
 import scala.collection.immutable
+import scala.util.control.Breaks._
 
 //import javax.swing.tree.TreeNode
 
@@ -142,14 +143,24 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
       }
 
       new_parent = child + ";" + new_parent
+
+      //clear extra separators
+      new_parent = new_parent.replace(";'","'")
+      new_parent = new_parent.replace(";;",";")
+
+      val sepIndex = new_parent.lastIndexOf(";")
+      if(sepIndex == new_parent.length-1){
+        new_parent = new_parent.substring(0,new_parent.length-1)
+      }
+
       return (new_parent, child)
     }
   }
 
-  def _constructExecutionTree(): List[(String, String)] = {
+  def _constructExecutionTree(): Map[Int,List[(String, String)]] = {
     try {
       val tree_level = _level_list_tree.toList.sortBy(_._1)
-      var executionTree: List[(String, String)] = List[(String, String)]()
+      var executionTree: Map[Int,List[(String, String)]] = Map[Int,List[(String, String)]]()
       for (level <- _level_list_tree.keys.toList.sorted) {
         if (level != 0) {
           print("RESORT ")
@@ -176,6 +187,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
             }
           }
 
+          var levelExecutionTree: List[(String, String)] = List[(String, String)]()
           for (value <- Range(0, result.length - (levelNodesCount * (additionalCopies + 1)))) {
             if (result(value).toString != "0.0") {
               var constraintIndex = (value + 1) / (levelNodesCount * (additionalCopies + 1))
@@ -184,14 +196,36 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
               }
               val variableIndex = (value + 1) - (levelNodesCount * (additionalCopies + 1)) * constraintIndex
 
+              var tmp = (groupByToVariable(variableIndex), groupByToConstraint(constraintIndex))
               //TODO replace child of current level by parents of previous level
-              val tmp = _resortNodesColumns(groupByToVariable(variableIndex), groupByToConstraint(constraintIndex))
-              executionTree = executionTree.::(tmp)
+              if(level-1 !=0) {
+                val prevLevelExecutionTree = executionTree(level - 1)
+
+                breakable {
+                  for (prevLevelNode <- prevLevelExecutionTree) {
+                    val prev = prevLevelNode._1.replace("'", "").split(";").toSet
+                    val curr = tmp._2.replace("'", "").split(";").toSet
+
+                    //Intersect two list
+                    val intersection = prev.intersect(curr)
+
+                    if (intersection.size == prev.size && intersection.size == curr.size) {
+                      tmp = (tmp._1, prevLevelNode._1)
+                      break()
+                    }
+                  }
+                }
+              }
+              tmp = _resortNodesColumns(tmp._1, tmp._2)
+              //END
+              levelExecutionTree = levelExecutionTree.::(tmp)
               print(tmp._1)
               print(" -> ")
               println(tmp._2)
             }
           }
+
+          executionTree = executionTree + (level -> levelExecutionTree)
           println("-------------")
         }
       }
@@ -204,7 +238,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     }
   }
 
-  def solveOptimizationTask(): List[(String, String)] = {
+  def solveOptimizationTask(): Map[Int,List[(String, String)]] = {
     try {
       for (level <- _task.keys.toList.sorted) {
         print("SOLVE ")
