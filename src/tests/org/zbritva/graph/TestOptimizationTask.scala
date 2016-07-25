@@ -9,7 +9,7 @@ import org.zbritva.graph.tree.TreeNode
   */
 class TestOptimizationTask extends TestCase {
 
-  var cubtree: CubeTree = null
+  var cubetree: CubeTree = null
 
   override def setUp: Unit = {
     //List of columns of cubing
@@ -17,11 +17,11 @@ class TestOptimizationTask extends TestCase {
       "A", "B", "C"
     )
 
-    cubtree = new CubeTree(lst)
+    cubetree = new CubeTree(lst)
   }
 
   def test(): Unit = {
-    val tree = cubtree.getTree
+    val tree = cubetree.getTree
 
     walkOnTree(tree.getRoot())
 
