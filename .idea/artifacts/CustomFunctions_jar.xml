@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CustomFunctions:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/CustomFunctions_jar</output-path>
+    <properties id="ant-preprocessing">
+      <options enabled="true" />
+    </properties>
+    <root id="archive" name="CustomFunctions.jar">
+      <element id="module-output" name="CustomFunctions" />
+      <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.10.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.10.5.jar" path-in-jar="/" />
+      <element id="dir-copy" path="$PROJECT_DIR$/conf" />
+    </root>
+  </artifact>
+</component>
