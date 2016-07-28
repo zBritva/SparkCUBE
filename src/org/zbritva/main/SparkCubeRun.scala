@@ -14,7 +14,7 @@ import tests.org.zbritva.graph.TestOptimizationTask
 
 object SparkCubeRun extends App {
 
-  case class Person(name: String, handedness: String, height: Int, weight: Int, avg: Int, HR: Int)
+  case class Person(name: String, handedness: String, height: Double, weight: Double, avg: Double, HR: Int)
 
   override def main(args: Array[String]) {
     val conf = new SparkConf()
@@ -30,18 +30,25 @@ object SparkCubeRun extends App {
     // split / clean data
     val headerString = dataAndHeader.first()
     val header = headerString.split(",")
-    val data = dataAndHeader.filter(str => org.zbritva.udf.CustomFunctions.notEqual(str, headerString))
-    print(data.count())
+//    val data = dataAndHeader.filter(str => org.zbritva.udf.CustomFunctions.notEqual(str, headerString))
+//    print(data.count())
 
-    val dataAndHeader_df = dataAndHeader.map[Array[String]](_.split(",")).map[Person](
+    val dataAndHeader_df = dataAndHeader.filter(r=>r != "name,handedness,height,weight,avg,HR").map[Array[String]](_.split(",")).map[Person](
       p =>
-        Person(
-          p(0),
-          p(1).trim,
-          p(2).trim.toInt,
-          p(3).trim.toInt,
-          p(4).trim.toInt,
-          p(5).trim.toInt)
+        try {
+          Person(
+            p(0).trim,
+            p(1).trim,
+            p(2).trim.toDouble,
+            p(3).trim.toDouble,
+            p(4).trim.toDouble,
+            p(5).trim.toInt)
+        }
+        catch {
+          case e: Exception =>
+            println("EXCEPTION:")
+            throw e
+        }
     ).toDF()
       dataAndHeader_df.cubePipeSort(
       dataAndHeader_df.col("height"),
