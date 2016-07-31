@@ -145,22 +145,22 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
       new_parent = child + ";" + new_parent
 
       //clear extra separators
-      new_parent = new_parent.replace(";'","'")
-      new_parent = new_parent.replace(";;",";")
+      new_parent = new_parent.replace(";'", "'")
+      new_parent = new_parent.replace(";;", ";")
 
       val sepIndex = new_parent.lastIndexOf(";")
-      if(sepIndex == new_parent.length-1){
-        new_parent = new_parent.substring(0,new_parent.length-1)
+      if (sepIndex == new_parent.length - 1) {
+        new_parent = new_parent.substring(0, new_parent.length - 1)
       }
 
       return (new_parent, child)
     }
   }
 
-  def _constructExecutionTree(): Map[Int,List[(String, String)]] = {
+  def _constructExecutionTree(): Map[Int, List[(String, String)]] = {
     try {
       val tree_level = _level_list_tree.toList.sortBy(_._1)
-      var executionTree: Map[Int,List[(String, String)]] = Map[Int,List[(String, String)]]()
+      var executionTree: Map[Int, List[(String, String)]] = Map[Int, List[(String, String)]]()
       for (level <- _level_list_tree.keys.toList.sorted) {
         if (level != 0) {
           print("RESORT ")
@@ -196,9 +196,23 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
               }
               val variableIndex = (value + 1) - (levelNodesCount * (additionalCopies + 1)) * constraintIndex
 
-              var tmp = (groupByToVariable(variableIndex), groupByToConstraint(constraintIndex))
+              var tmp: Tuple2[String,String] = null
+              try {
+                tmp = (groupByToVariable(variableIndex), groupByToConstraint(constraintIndex))
+              }
+              catch {
+                case e: NoSuchElementException =>
+                  println("Key not found")
+                  println("variableIndex:" + variableIndex)
+                  println("Data:" + groupByToVariable.toString)
+                  println("constraintIndex:" + constraintIndex)
+                  println("Data:" + groupByToConstraint.toString)
+                  throw e
+              }
+
+
               //TODO replace child of current level by parents of previous level
-              if(level-1 !=0) {
+              if (level - 1 != 0) {
                 val prevLevelExecutionTree = executionTree(level - 1)
 
                 breakable {
@@ -238,7 +252,7 @@ class ExecutionTree(root: TreeNode, level_list: Map[Int, immutable.Set[List[Stri
     }
   }
 
-  def solveOptimizationTask(): Map[Int,List[(String, String)]] = {
+  def solveOptimizationTask(): Map[Int, List[(String, String)]] = {
     try {
       for (level <- _task.keys.toList.sorted) {
         print("SOLVE ")

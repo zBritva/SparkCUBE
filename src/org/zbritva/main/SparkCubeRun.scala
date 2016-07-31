@@ -19,21 +19,23 @@ object SparkCubeRun extends App {
   override def main(args: Array[String]) {
     val conf = new SparkConf()
     conf.setJars(Seq("out\\artifacts\\CustomFunctions_jar\\CustomFunctions.jar"))
-//    val sc = new SparkContext(master = "spark://192.168.142.176:7077", appName = "SparkCubeRun", conf)
+    //    val sc = new SparkContext(master = "spark://192.168.142.176:7077", appName = "SparkCubeRun", conf)
     val sc = new SparkContext(master = "local[4]", appName = "SparkCubeRun", conf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
     sc.addJar("out\\artifacts\\CustomFunctions_jar\\CustomFunctions.jar")
     import sqlContext.implicits._
     import org.zbritva.rdd.DataFrameCubeExtension._
 
-    val dataAndHeader = sc.textFile("C:\\SparkData\\baseball_data.csv")
+    //    val dataAndHeader = sc.textFile("C:\\SparkData\\baseball_data.csv")
+    val dataAndHeader = sc.textFile("D:\\SparkData\\baseball_data.csv")
+
     // split / clean data
     val headerString = dataAndHeader.first()
     val header = headerString.split(",")
-//    val data = dataAndHeader.filter(str => org.zbritva.udf.CustomFunctions.notEqual(str, headerString))
-//    print(data.count())
+    //    val data = dataAndHeader.filter(str => org.zbritva.udf.CustomFunctions.notEqual(str, headerString))
+    //    print(data.count())
 
-    val dataAndHeader_df = dataAndHeader.filter(r=>r != "name,handedness,height,weight,avg,HR").map[Array[String]](_.split(",")).map[Person](
+    val dataAndHeader_df = dataAndHeader.filter(r => r != "name,handedness,height,weight,avg,HR").map[Array[String]](_.split(",")).map[Person](
       p =>
         try {
           Person(
@@ -50,7 +52,7 @@ object SparkCubeRun extends App {
             throw e
         }
     ).toDF()
-      dataAndHeader_df.cubePipeSort(
+    dataAndHeader_df.cubePipeSort(
       dataAndHeader_df.col("height"),
       dataAndHeader_df.col("weight"),
       dataAndHeader_df.col("avg"),

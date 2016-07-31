@@ -37,6 +37,7 @@ object DataFrameCubeExtension {
 
       val start = System.currentTimeMillis()
       walkOnTree(root)
+      df.count()
       val stop = System.currentTimeMillis()
 
       val delta_naive = stop - start
@@ -61,7 +62,10 @@ object DataFrameCubeExtension {
       }
 
       val start = System.currentTimeMillis()
-      val cnt = df.groupBy(cols:_*).count()
+      val cnt = df.groupBy(cols:_*).count().count()
+      print("[CNT: ")
+      print(cnt)
+      print("]")
       val stop = System.currentTimeMillis()
 
       val delta = stop - start
@@ -85,7 +89,6 @@ object DataFrameCubeExtension {
         }
       }
     }
-
 
     def getSortSequence(plan: Map[Int,List[(String, String)]], level: Int, nodeColumns: String): List[String] ={
       val result = ListBuffer[String]()
@@ -169,6 +172,7 @@ object DataFrameCubeExtension {
 
       start = System.currentTimeMillis()
       val cube = df.cube()
+      println(cube.count().collect())
       stop = System.currentTimeMillis()
 
       val delta_naive = stop - start
@@ -181,7 +185,6 @@ object DataFrameCubeExtension {
     def sclanRows(group: List[String]): Unit ={
 
     }
-
 
     def _testGetTree(): ExecutionPlanTree ={
 //      PHYSICAL PLAN EXAMPLE
@@ -197,19 +200,19 @@ object DataFrameCubeExtension {
 
       //row 1
       if(true) {
-        var all = new ExecutionPlanTree()
+        val all = new ExecutionPlanTree()
         all.setName("*")
         all.order = 0
 
-        var hw = new ExecutionPlanTree()
+        val hw = new ExecutionPlanTree()
         hw.setName("height;weight;")
         hw.order = 0
 
-        var hwh = new ExecutionPlanTree()
+        val hwh = new ExecutionPlanTree()
         hwh.setName("height;weight;HR;")
         hwh.order = 0
 
-        var hwha = new ExecutionPlanTree()
+        val hwha = new ExecutionPlanTree()
         hwha.setName("height;weight;HR;avg")
         hwha.order = 4
 
@@ -220,11 +223,11 @@ object DataFrameCubeExtension {
       }
       //row 2
       if(true) {
-        var ahw = new ExecutionPlanTree()
+        val ahw = new ExecutionPlanTree()
         ahw.setName("avg;height;weight")
         ahw.order = 0
 
-        var ahwh = new ExecutionPlanTree()
+        val ahwh = new ExecutionPlanTree()
         ahwh.setName("avg;height;weight;HR")
         ahwh.order = 2
 
@@ -234,40 +237,40 @@ object DataFrameCubeExtension {
       }
       //row 3
       if(true){
-        var h = new ExecutionPlanTree()
+        val h = new ExecutionPlanTree()
         h.setName("HR")
         h.order = 0
 
-        var ha = new ExecutionPlanTree()
+        val ha = new ExecutionPlanTree()
         ha.setName("HR;avg")
         ha.order = 0
 
-        var haw = new ExecutionPlanTree()
+        val haw = new ExecutionPlanTree()
         haw.setName("HR;avg;weight")
         haw.order = 0
 
-        var hawh = new ExecutionPlanTree() //root
+        val hawh = new ExecutionPlanTree() //root
         hawh.setName("HR;avg;weight;height")
         hawh.order = 3
 
-        var hw = new ExecutionPlanTree()
+        val hw = new ExecutionPlanTree()
         h.setName("HR;weight")
         h.order = 0
 
-        var hwa = new ExecutionPlanTree()
+        val hwa = new ExecutionPlanTree()
         hwa.setName("HR;weight;avg")
         hwa.order = 1
 
         //weight;avg;HR;''' -> weight;avg -> weight
-        var w = new ExecutionPlanTree()
+        val w = new ExecutionPlanTree()
         w.setName("weight")
         w.order = 0
 
-        var wa = new ExecutionPlanTree()
+        val wa = new ExecutionPlanTree()
         wa.setName("weight;avg")
         wa.order = 0
 
-        var wah = new ExecutionPlanTree()
+        val wah = new ExecutionPlanTree()
         wah.setName("weight;avg;HR")
         wah.order = 2
 
@@ -285,33 +288,33 @@ object DataFrameCubeExtension {
       }
       //row 4
       if(true){
-        var a = new ExecutionPlanTree()
+        val a = new ExecutionPlanTree()
         a.setName("avg")
         a.order = 0
 
-        var ah = new ExecutionPlanTree()
+        val ah = new ExecutionPlanTree()
         ah.setName("avg;height")
         ah.order = 0
 
         ah.addChild(a)
 
-        var ahh = new ExecutionPlanTree()
+        val ahh = new ExecutionPlanTree()
         ahh.setName("avg;height;HR")
         ahh.order = 1
 
         ahh.addChild(ah)
 
-        var hh = new ExecutionPlanTree()
+        val hh = new ExecutionPlanTree()
         hh.setName("HR;height")
         hh.order = 1
 
-        var hha = new ExecutionPlanTree()
+        val hha = new ExecutionPlanTree()
         hha.setName("HR;height;avg")
         hha.order = 0
 
         hha.addChild(hh)
 
-        var hhaw = new ExecutionPlanTree()
+        val hhaw = new ExecutionPlanTree()
         hhaw.setName("HR;height;avg;;weight")
         hhaw.order = 1
 
