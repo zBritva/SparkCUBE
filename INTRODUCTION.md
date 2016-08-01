@@ -102,3 +102,8 @@ Evaluation with comparing mrcube implementation on pig latin1 is not possible, b
 	5. https://issues.apache.org/jira/browse/SPARK-2663 [Spark-2663]
 	6. K.MORFONIOS, S.KONAKAS, Y.IOANNIDIS, N.KOTSIS ROLAP Implementations of the Data Cube [PipeSort]
 	7. Bernhard Korte, Jens Vygen Combinatorial Optimization [Combinatory]
+	8. http://hadoop.apache.org/
+	9. http://spark.apache.org/docs/latest/
+	10. https://ru.wikipedia.org/wiki/Apache_Spark
+	11. https://issues.apache.org/jira/browse/PIG-2765
+	12. Arnab Nandi, Cong Yu, Philip Bohannon, Raghu Ramakrishnan Distributed Cube Materialization on Holistic Measures
